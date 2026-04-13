@@ -1,0 +1,16 @@
+# _playground
+
+Personal scratch repo — drafts and records of AI tooling I'm building before it ships elsewhere.
+
+Layout follows Claude Code's packaging schema (`skills/`, `agents/`, `commands/`, `hooks/`; type dirs created on first use), so anything here ports with a bare `cp -R`. Code-shaped projects (MCP servers, standalone plugins) get their own top-level folder. Lifecycle: draft here → symlink into `~/.claude/` to use everywhere → promote to `agent-native` when it earns it. Git history is the changelog.
+
+## Index
+
+- **[skills/beta-agent-architect](skills/beta-agent-architect/)** — interviews you (up to 3 rounds) about a problem worth automating, classifies the right artifact (subagent, skill, Claude Project, prompt, or MCP server), researches the domain, then delivers a complete tested package.
+  Source of truth: here; installed everywhere via symlink from `~/.claude/skills/`. Repointed 2026-07-02 (previously `agent-native` branch `feat-add-agent-architect`, whose working-tree copy is now superseded). Promote to `agent-native` when it earns it.
+- **[skills/init-agent-instructions](skills/init-agent-instructions/)** — deterministic `/init-agent-instructions`: audits, generates, and reconciles CLAUDE.md/AGENTS.md across a whole repo from scoped templates (root/app/package/domain), with toolchain detection, change-posture derivation, FLAGS.md, and AGENTS.md symlink sync.
+  Source of truth: here; installed everywhere via symlink from `~/.claude/skills/`. Consolidated 2026-07-01 from `claude-md-templates/` (newest content) + the Jun 22 home-dir skill (packaging, audit phase, examples, rubric).
+- **[commands/doc-review.md](commands/doc-review.md) + [agents/doc-reviewer.md](agents/doc-reviewer.md)** — `/doc-review [path]` dispatches the doc-reviewer subagent over the current git changes: wrong/stale comments, missing public-API JSDoc/TSDoc, commented-out code, noise comments; severity-tiered, empty result allowed.
+  Source of truth: here; installed via symlinks from `~/.claude/commands/` and `~/.claude/agents/`. Moved 2026-07-01. Note: [agents/references/documentation-craft.md](agents/references/documentation-craft.md) is shared — `readme-writer` (still a loose file in `~/.claude/agents/`) loads it by absolute path through the symlink.
+- **[commands/pr-review.md](commands/pr-review.md) + [agents/pr-cartographer.md](agents/pr-cartographer.md) + five `agents/pr-*-reviewer.md`** — `/pr-review [pr | branch]` fans out six parallel subagents over a PR or branch diff: cartographer (intent summary, visual change map, blast radius, reading order, risk hotspots) plus security, perf/scale, correctness, architecture, and readability reviewers; merged report sorted by priority with calibrated confidence per finding, a readability-wins section with before/after sketches, paste-ready Conventional Comments drafts for relay-worthy items (never posts them), per-domain cleared lists, one-line verdict; empty result allowed. Each reviewer also runs standalone.
+  Source of truth: here; installed via symlinks from `~/.claude/commands/` and `~/.claude/agents/`. Built 2026-07-02 via beta-agent-architect. Rulesets distilled from OWASP/CWE, Kleppmann, Effective TypeScript, Ousterhout/Fowler, Beck's Tidy First?, Metz, react.dev.

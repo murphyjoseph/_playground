@@ -1,0 +1,43 @@
+{
+  "skill_name": "beta-agent-architect",
+  "evals": [
+    {
+      "id": 1,
+      "eval_name": "scheduled-weekly-digest",
+      "prompt": "Every Monday at 9am I want a dependency-health digest for our monorepo at ~/Sites/welltheory-core waiting for me: new security advisories against anything in our package.json files, packages that have fallen a major version behind, and any license changes in the tree. I read it on my phone over coffee, so keep it skimmable. It should live in Claude Code and post nothing anywhere — just write the digest to a file I open. Don't interview me round by round; you have what you need, state any assumption you make and build it.",
+      "expected_output": "A capability artifact (agent/skill prompt that self-gathers dependency data) paired with a SCHEDULED invocation (cron routine / scheduled agent), shipped in full. Not a hook, not manual-only invocation. Complete package: fenced prompt, test inputs, how-to-use with run line.",
+      "files": [],
+      "assertions": [
+        "Recommends a time-based scheduled/cron mechanism (scheduled agent, /schedule, cron job) as the invocation for the Monday 9am requirement — not an event hook, and not only manual slash-command invocation",
+        "Ships the schedule setup itself in full (the command or config that creates the scheduled run), not just a mention that scheduling exists",
+        "Delivers a complete package: a fenced agent/skill prompt, a test-inputs section, and a how-to-use section that opens with the exact run line",
+        "The delivered prompt gathers dependency data itself via tools/commands rather than demanding pasted input"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "team-pr-review-system",
+      "prompt": "Our team of six wants a single command that reviews any PR from three genuinely different angles: HIPAA-ish data handling (PHI leaking into logs, analytics calls, third-party requests), React render performance, and REST API contract compatibility with our mobile client. One command, findings merged and sorted by severity, and a clean PR should come back as 'nothing to flag' rather than padded nitpicks. It runs in Claude Code in the terminal during review. The whole team should get this, not just me. Assume senior-engineer defaults instead of interviewing me, note your assumptions, and build the whole thing.",
+      "expected_output": "A fan-out system: three focused domain subagents plus an orchestrating slash command that launches them in parallel and merges findings by severity. Mission semantics with an explicit empty-result path. Team distribution addressed via plugin packaging.",
+      "files": [],
+      "assertions": [
+        "Delivers three focused domain reviewer subagents as separate agent definitions plus an orchestrating slash command — not one agent covering all three domains",
+        "The orchestrator instructs launching the reviewers in parallel (single message) and defines merge/dedupe/sort rules for the findings",
+        "Addresses team-wide distribution through plugin/marketplace packaging rather than telling six people to copy loose files",
+        "The mission output format includes an explicit clean-PR path ('nothing to flag') and a rule against padding or manufacturing findings"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "standing-rule-not-agent",
+      "prompt": "Can you build me an agent that makes sure Claude always uses our internal logger from @welltheory/logging instead of console.log whenever it writes code in our repos, and never edits anything under src/generated/? I was thinking maybe a reviewer subagent that checks every diff for violations?",
+      "expected_output": "Recognizes this as a standing behavior rule, not an agent: primary deliverable is paste-ready CLAUDE.md rule lines (optionally plus a hook for hard enforcement). Pushes back on the reviewer-subagent framing rather than building it as asked.",
+      "files": [],
+      "assertions": [
+        "Identifies the ask as a standing behavior rule and makes CLAUDE.md (or AGENTS.md) rule lines the primary deliverable",
+        "Does not deliver a full reviewer-subagent package as the primary solution (offering a hook or reviewer as a secondary enforcement option is acceptable)",
+        "Ships the actual paste-ready CLAUDE.md rule text"
+      ]
+    }
+  ]
+}
