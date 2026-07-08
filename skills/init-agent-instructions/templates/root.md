@@ -1,8 +1,11 @@
-# CLAUDE.md — [PROJECT_NAME]
+# [PROJECT_NAME]
 
-> **Root guide.** All `apps/` and `packages/` CLAUDE.md files are deltas — they inherit everything here and only document what differs. Never duplicate root rules in child guides.
+[One sentence — what this repo is and what it ships.]
 
-- **Project:** `[PROJECT_NAME]`
+Change posture: `[locked | guarded | standard | open]` ([inputs — why this default, e.g. "healthcare prod, PHI throughout"]) — repo-wide default; each workspace guide sets its own. Legend below.
+
+> **Root guide.** Every workspace guide (apps, packages, and any other workspace dir) is a delta — it inherits everything here and only documents what differs. Never duplicate root rules in child guides.
+
 - **Monorepo type:** `[FE-only | BE-only | FE+BE]`
 - **Runtimes in use:** `[browser · node · edge]` ← list only what applies
 - **Language:** TypeScript `[VERSION]` — strict mode, no exceptions
@@ -10,7 +13,6 @@
 - **Node version:** `[VERSION]` (see `.nvmrc` / `.node-version`)
 - **Build orchestration:** `[ORCHESTRATOR — Nx · Turborepo · Lerna · Rush · none (workspaces only)]`
 - **Deploy target(s):** `[e.g., Vercel (web) · Fly.io (server) · npm (packages)]`
-- **Change posture:** `[locked | guarded | standard | open]` (`[inputs — why this default, e.g. "healthcare prod, PHI throughout"]`) — repo-wide default; each workspace guide sets its own. Legend below.
 
 ---
 
@@ -254,7 +256,7 @@ Don't export what only one consumer uses. Keep single-consumer code in the app u
 
 ## 7) Testing
 
-- **Unit / integration:** Vitest, co-located as `[subject].test.ts` next to source
+- **Unit / integration:** `[Vitest | Jest]`, co-located as `[subject].[test|spec].ts` next to source — match the repo's real runner and suffix
 - **E2E:** [Playwright / Cypress] at `[location]`
 - **MUST NOT** mock the database, network, or filesystem in integration tests — use real instances
 - **MUST** reset shared state between tests
@@ -296,7 +298,8 @@ Spec (`YYYY-MM-DD-[topic]-design.md`) = problem & why now, approach & key decisi
 
 ### Reference docs
 
-When working in an area that has a reference doc (e.g., `docs/architecture.md`, `docs/api.md`), read it before making changes that touch that area. If the doc is out of date after your change, update it in the same PR.
+- **Docs map:** [`docs/docs-map.md`](docs/docs-map.md) — the audited inventory of this repo's documentation: the canonical source per topic, known-stale docs, and open conflicts. Check it before trusting any doc it doesn't mark canonical. ← remove if no docs map exists yet
+- When working in an area that has a reference doc (e.g., `docs/architecture.md`, `docs/api.md`), read it before making changes that touch that area. If the doc is out of date after your change, update it in the same PR.
 
 ---
 
@@ -305,5 +308,5 @@ When working in an area that has a reference doc (e.g., `docs/architecture.md`, 
 1. Scaffold `apps/[name]/` or `packages/[name]/`: `package.json` (correct `name`, standard `dev`/`build`/`test`/`lint`/`check-types` scripts), `tsconfig.json`, `src/`
 2. Confirm the workspace manifest glob picks it up; register with the orchestrator if one is used
 3. Create its guide from the matching delta template — every workspace carries one (it's the posture/metadata carrier): write `AGENTS.md`, then `ln -s AGENTS.md CLAUDE.md` beside it
-4. Add it to the §1 workspace table
-5. Packages only: verify the dep footprint against §4 **before** adding any dependency
+4. Add it to the workspace reference in Monorepo Structure
+5. Packages only: verify the dep footprint against the Package Design Invariants **before** adding any dependency

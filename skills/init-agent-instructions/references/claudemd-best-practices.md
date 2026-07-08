@@ -13,7 +13,8 @@ Load this during the audit phase. Every rule below is checkable. A violation is 
   chain deep. Imports inside fenced code blocks are NOT expanded (safe to show a literal `@path`).
 
 ## Length & density (hard rules)
-- Cap each file at ~200 lines. Over that = finding: split into nested files or cut.
+- Cap each file at ~200 lines. Over that = finding: split into nested files or cut. (A finding to surface
+  and weigh, not an automatic cut — a dense 220-line root can pass; a padded 150-line delta can't.)
 - App/package files are DELTAS. A rule already stated in root, repeated in a child = finding. Children
   document only what differs or is additive.
 - Every line must be repo-specific. If a line is true of any TS/React/Node project, cut it.

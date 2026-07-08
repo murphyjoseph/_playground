@@ -17,26 +17,21 @@ Set up and maintain a repository's agent instruction files. The output is one `C
 each paired with an `AGENTS.md` so every coding agent (Claude Code, Cursor, Codex, ...) reads the same
 guidance. Claude Code reads `CLAUDE.md`; other tools read `AGENTS.md`; a symlink keeps them identical.
 
-The process is always: **detect → read → audit → report → confirm → generate → sync → summarize.**
-Never skip the report/confirm step. Never write files before the user confirms.
+The process is always: **detect → read → audit → plan document → confirm → one-sweep generate → sync →
+summarize.** All questions are front-loaded into the plan document; once the user confirms it, the sweep
+runs start-to-finish with no further questions. Never write instruction files before the user confirms —
+the only pre-confirmation write is the plan document itself.
 
-Read `references/claudemd-best-practices.md` before the audit — it is the rubric for every finding.
-
-**Where this skill's files live:** every `templates/`, `references/`, and `examples/` path in this file is
-relative to **this skill's own directory** (the folder containing this SKILL.md — e.g.
+**Where this skill's files live:** every `templates/` and `references/` path in this file is relative to
+**this skill's own directory** (the folder containing this SKILL.md — e.g.
 `~/.claude/skills/init-agent-instructions/`), never the target repo. Resolve them there. If a read fails,
 stop and say so — do not reconstruct a template from memory; output generated without having read the
 actual template files is invalid.
 
-## When the repo is fresh vs. when it already has files
-
-Same command, branches on what's there:
-
-- **Fresh repo** (no CLAUDE.md anywhere): audit finds nothing to reconcile; go straight to generating
-  from templates.
-- **Existing files**: audit them first against the best-practices rubric, surface contradictions and
-  problems in the report, and on confirm *reconcile* them into the template structure rather than blindly
-  overwriting. Preserve correct repo-specific content; fix what the audit flagged.
+**Fresh repo vs. existing files:** same command. A fresh repo (no CLAUDE.md anywhere) just has an empty
+audit — go straight to generation. Existing files get audited against the rubric, surfaced in the plan
+doc, and on confirm **reconciled** into the template structure rather than blindly overwritten — preserve
+correct repo-specific content, fix what the audit flagged.
 
 ---
 
@@ -52,8 +47,10 @@ Determine what to document:
    is a **banned** reason to skip a workspace: the delta is the metadata carrier (posture, consumers,
    commands), and full coverage makes absence meaningful — a missing file means "not yet generated", never
    "intentionally empty". Scale depth, not existence: a thin workspace gets ~10-15 lines.
-2. Single `package.json`, no workspaces → **single package**. Produce one root `CLAUDE.md`. Do not invent
-   monorepo structure.
+2. Single `package.json`, no workspaces → not this skill's lane. This skill specializes in **monorepo**
+   scaffolding, updating, and auditing; say so and stop. If the user explicitly wants a root-only guide
+   anyway, use the root template minus its monorepo-only sections (workspace reference, Package Design
+   Invariants, Adding a New Workspace) — and do not invent monorepo structure.
 3. Explicit scope argument (`root` | `app` | `package` | `domain`) → document just that scope, resolved
    from the current working directory. When inside a workspace dir with no argument, classify it: under an
    app glob → **app**, otherwise **package**.
@@ -65,7 +62,7 @@ Determine what to document:
    `*.command.ts`, `*.workflow.ts`, `*.repository.ts` — a registration/codegen step, a base class extended
    across many files, a matching developer-guide doc) and put **every** candidate in the coverage plan with
    a generate/skip recommendation and the evidence. Skipping is fine when Phase 1c says so; skipping
-   silently is not — every omission must be a decision the user saw.
+   **silently** is not.
 5. Ambiguous → ask the user before proceeding.
 
 ---
@@ -117,8 +114,8 @@ Read silently. Do not ask for information you can find yourself.
 
 ### Always read
 - **This skill's own assets first** (from the skill directory, not the repo): all four `templates/*.md`
-  and `references/claudemd-best-practices.md`, in full. The report's "Skill assets loaded" line proves it;
-  generating any workspace file whose template wasn't read this session is invalid.
+  and `references/claudemd-best-practices.md` (the audit rubric), in full. The report's "Skill assets
+  loaded" line proves it.
 - `package.json` — name, scripts, dependencies, devDependencies, peerDependencies, exports field,
   `packageManager`
 - Lockfile + `packageManager` field — confirm the package manager (see Phase 1b)
@@ -138,6 +135,10 @@ Read silently. Do not ask for information you can find yourself.
 - The workspace manifest — `pnpm-workspace.yaml` or the `workspaces` field — for the actual globs
 - `<workspace-glob>/*/package.json` for **every** workspace dir (not just `apps/` and `packages/`) —
   names, scope, framework deps
+- **Documentation census:** every `*.md`/`*.mdx` in the repo (excluding `node_modules`, build output,
+  generated dirs, changelogs). Classify each from its title/frontmatter/head — full-read only suspected
+  conflicts and canonical candidates. Note last-commit date (`git log -1 --format=%cs -- <path>`) as the
+  staleness signal. Feeds the doc-conflict audit (Phase 3) and the docs-map artifact (Phase 5).
 
 ### App scope — also read
 - `src/main.ts` or `src/index.ts` or `app/layout.tsx` or framework entry equivalent
@@ -148,8 +149,9 @@ Read silently. Do not ask for information you can find yourself.
 ### Package scope — also read
 - `src/index.ts` (or the `exports`/`main` entry) — what is actually exported
 - From the monorepo root, find consumers using the **detected** scope, not a hardcoded one:
-  `rg "from '<SCOPE>/<name>'" -l` (e.g. `@wt/logger`). Do not restrict to a fixed `.ts/.tsx` extension
-  list — repos mix `.ts`/`.tsx`/`.js`; let ripgrep search all source.
+  `rg "from ['\"]<SCOPE>/<name>[/'\"]" -l` (e.g. `@wt/logger`). The pattern must match both quote styles
+  and subpath imports (`@wt/core/system` is often the only form a package is consumed by). Do not restrict
+  to a fixed `.ts/.tsx` extension list — repos mix `.ts`/`.tsx`/`.js`; let ripgrep search all source.
 
 ### Domain (subtree) scope — also read
 - The target directory's structure + 1-2 representative source files — to ground the real base classes,
@@ -195,15 +197,21 @@ value is auditable, e.g. `guarded (7 consumers, handles PHI)`.
 Derive it mechanically, then confirm in the report:
 
 1. Start at `standard`.
-2. Escalate to `guarded` if **any**: 3+ consumers · published externally · a public API contract others
-   build against · handles auth, payments, or regulated data (PII/PHI).
+2. Escalate to `guarded` if **any**: published externally · a public API contract others build against ·
+   handles auth, payments, or regulated data (PII/PHI) · widely consumed **and** breaking it breaks
+   runtime behavior. Compile-time-only surfaces (types, config, test-only) stay `standard` regardless of
+   consumer count.
 3. `locked` if: status DEPRECATED / frozen · generated output that must never be hand-edited.
 4. Relax to `open` only if: status EXPERIMENTAL, or internal tooling / spike — **and** nothing in rule 2
    applies.
 5. Torn between two tiers → pick the more restrictive and add a `FLAGS.md` entry.
+6. Postures are **proposals** until a human confirms them: they surface in the plan doc's Inferred table
+   before the sweep, and the Phase 6 posture roll-call re-surfaces the final set for review.
 
-The legend defining what each tier permits lives **once, in the root guide** (the root template ships it).
-Child guides carry only their value + inputs — never restate the legend.
+The legend defining what each tier permits lives **once, in the root guide** (the root template ships it),
+and keeps its authority columns — the per-tier "agents may / must not" mapping is the PR-agent authority
+contract; never condense it to one-liners. Child guides carry only their value + inputs — never restate
+the legend.
 
 ---
 
@@ -220,11 +228,14 @@ Check, per the rubric:
 - **Delta violations** — child files restating rules already in root.
 - **Command drift** — commands that don't match `package.json` scripts.
 - **Stale references** — paths / files / globs / commands that no longer exist.
+- **Doc conflicts & dead docs** — two docs disagreeing on the same topic (name which should win and why),
+  docs describing code that no longer exists, duplicates of a canonical source, orphans nothing links to.
+  Every topic gets exactly one preferred source.
 - **Naming contradictions** — conventions that differ between root and a child, or between two children.
 - **Dep/runtime mismatches** — claims that contradict `package.json` / `tsconfig.json`, or violate the
   package-design invariants.
-- **Missing or invalid change posture** — no `Change posture` line, a value outside the four words, or a
-  value with no derivation inputs.
+- **Missing or invalid change posture** — no `Change posture` line, or one that breaks the Phase 2 format
+  (one of the four words, parenthesized inputs).
 - **Procedures inlined** — multi-step workflows written into CLAUDE.md that belong in a skill
   (`.claude/skills/`), or rarely-needed reference detail that belongs in `.claude/rules/` or `docs/`.
 - **Sync gaps** — workspaces missing the `AGENTS.md` ↔ `CLAUDE.md` symlink, or where the two files differ.
@@ -236,9 +247,17 @@ findings as uncertain rather than asserting them.
 
 ---
 
-## Phase 4 — Report (then stop)
+## Phase 4 — Plan document (then stop)
 
-Output the report and **do not write any files yet.**
+Write the report **as a document** — `agent-instructions-plan.md` at the repo root — then stop. Do not
+write any instruction files yet. The document is the review surface: the user reads it, answers the
+Questions inline, and marks Practice review decisions directly in the file. In chat, post only a 3-5 line
+pointer (where the doc is, the finding count, which questions need answers) plus the confirmation ask.
+(Throughout this file, "the report" means this document.) The plan doc is per-run — overwrite any
+`agent-instructions-plan.md` left over from a previous run.
+
+`## Discovered during scaffolding` and `## Run summary` are created empty — Phase 5 and Phase 6 append to
+them; nothing else in the document is touched after confirmation.
 
 ```
 ## Agent Instructions — Audit & Plan
@@ -257,8 +276,16 @@ Skill assets loaded: [templates/root.md ✓ · app.md ✓ · package.md ✓ · d
 | [pkg]/src/[dir]  | domain         | yes / no           | create / reconcile / ok — [why warranted, per 1c] |
 
 ### Findings  (empty = repo is in good shape)
-- [path] · [severity] · [issue] → [fix]
+- [path] · [severity] · [issue] → [fix] · concern? [real — affects agents/docs | cosmetic | informational]
 - ...
+
+### Practice review  (confusing or inconsistent practices — decide before scaffolding)
+Findings above = defects in the instruction files themselves; Practice review = codebase practices the
+docs would codify. For each: what the codebase does today, why it reads as confusing or inconsistent, and
+a recommendation.
+The generated docs describe what IS, so each item needs a decision: codify as-is, or change direction.
+- [practice] · [evidence paths] · [recommendation]
+  > decision: [document as-is | adopt new practice: …] ← mark before confirming
 
 ### Inferred (correct me if wrong)
 | Field | Value | Source |
@@ -277,22 +304,28 @@ Skill assets loaded: [templates/root.md ✓ · app.md ✓ · package.md ✓ · d
 - `docs/architecture.md`: [found | not found]
 - Custom skills in `.claude/skills/` (or legacy `.claude/commands/`): [list | none found]
 
+### Documentation inventory  (feeds docs/docs-map.md — see Phase 5)
+- Docs found: [N files across docs/, apps/docs/, READMEs, …]
+- Conflicts: [doc A vs doc B on [topic] — recommend [which wins] because …]
+- Dead / stale: [path — evidence, e.g. "describes removed src/infra/; last touched 2024-06"]
+- Duplicates: [path → duplicate of [canonical]]
+- Preferred source per topic: [topic → path — this table becomes the docs map]
+
 ### Merge plan  (only if existing files were found)
 - Keep verbatim: [hand-written domain rules / decisions worth preserving — list them]
 - Restructure into template: [content that maps onto template sections]
 - Drop: [stale or template-redundant content — with reason]
-- Fill fresh: [template sections with no existing counterpart — every template section must be accounted for]
 - AGENTS.md handling: [keep symlink | convert to symlink | @AGENTS.md import | n/a]
 
-### Sections that will be skipped
-- [Section name] — [reason, e.g., "Accessibility: not applicable for API server"]
-
-### Root sections check  (these default to REQUIRED in root; skipping needs a reason here and your confirmation)
-- Operating Rules (FLAGS.md rule + update-docs-in-same-PR rule): [in | skipped — reason]
-- Metadata Legend with authority columns: [in | skipped — reason]
-- Package Design Invariants (dep footprint, two-consumer rule, no upward imports): [in | skipped — reason]
-- Comments & documentation: [in | skipped — reason]
-- Planning before building / docs & specs: [in | skipped — reason]
+### Section accounting  (every template section lands somewhere: filled · merged · skipped-with-reason)
+- Root required — skipping any needs a reason here and your confirmation:
+  - Operating Rules (FLAGS.md rule + update-docs-in-same-PR rule): [in | skipped — reason]
+  - Metadata Legend with authority columns: [in | skipped — reason]
+  - Package Design Invariants (dep footprint, two-consumer rule, no upward imports): [in | skipped — reason]
+  - Comments & documentation: [in | skipped — reason]
+  - Planning before building / docs & specs: [in | skipped — reason]
+- Skipped elsewhere: [workspace · section — reason, e.g. "apps/api: Accessibility — backend"]
+- Filled fresh (no counterpart in the existing file): [sections — only when reconciling]
 
 ### Dependency footprint check  (one row per package — run it against actual `dependencies`; a package with no row = incomplete report)
 - [✓ | ⚠] packages/[a] ([pkg-type]): [e.g., "✓ clean" | "⚠ `multer` (Express middleware) in a utility package — split or reclassify"]
@@ -308,40 +341,57 @@ Skill assets loaded: [templates/root.md ✓ · app.md ✓ · package.md ✓ · d
 ### Sync method
 AGENTS.md = real file, CLAUDE.md → symlink to it, per workspace. [Note if any existing setup differs.]
 
-### Questions
-[Only what genuinely cannot be inferred. Omit the section if nothing is unclear.]
+### Questions  (answer inline, right under each question)
+[Only what genuinely cannot be inferred. Omit if nothing is unclear. Anything unanswered at confirm time
+gets the safer reading, logged under Discovered — the sweep never stops to ask.]
+1. [question]
+   > answer:
+
+## Discovered during scaffolding
+<!-- Appended live during Phase 5: one line per item — what was found, where, the assumption taken.
+     Empty at plan time. -->
+
+## Run summary
+<!-- Written by Phase 6 when the sweep completes. Empty at plan time. -->
 ```
 
-End with: **"Reply `yes` to generate, or give corrections first."** If corrected, update the affected
-rows and re-confirm before generating.
+End the chat message with: **"Review and edit `agent-instructions-plan.md` (answer the Questions, mark the
+Practice review decisions), then reply `yes` to run the sweep."** If corrections come back in chat instead
+of the doc, fold them into the doc and re-confirm.
 
 ---
 
-## Phase 5 — Generate / reconcile
+## Phase 5 — Generate / reconcile (one sweep, no questions)
 
-Once confirmed, for each workspace in the coverage plan:
+On `yes`: **re-read `agent-instructions-plan.md` first** — the user may have edited it, and its inline
+answers and Practice review decisions override the original inferences. Then run the whole coverage plan
+start-to-finish in one sweep:
+
+- **Order:** root first → each app (immediately followed by any domain subtrees inside it) → each package
+  (immediately followed by its domain subtrees). Domains ride with their enclosing workspace, never as a
+  trailing phase — they inherit from a guide that must already be final.
+- **Non-interactive:** never stop to ask mid-sweep. Ambiguity discovered mid-run → take the safer reading,
+  append one line to the plan doc's `## Discovered during scaffolding` section (what, where, assumption
+  taken), and keep moving.
+
+For each workspace in the coverage plan:
 
 1. **Select the template:** root → `templates/root.md` · app → `templates/app.md` · package →
-   `templates/package.md` · domain → `templates/domain.md`. Use `examples/{root,app,package}.md` as the
-   reference for what a good filled-in file looks like — but the examples predate the posture and domain
-   additions, so where an example and a template disagree, the template wins. If the audit found a golden
-   in-repo example, match its shape instead. A golden example governs tone and formatting only — the
-   section skeleton comes from the template (you read it in Phase 2; if not, read it now before filling
-   anything), required sections drop only via the report's Root sections check / merge plan, and nothing
-   waives the required metadata contract (step 2) or the legend's authority columns.
+   `templates/package.md` · domain → `templates/domain.md`. If the audit found a golden in-repo example,
+   match its shape instead. A golden example governs tone and formatting only — the section skeleton comes
+   from the template (you read it in Phase 2; if not, read it now before filling anything), required
+   sections drop only via the plan doc's Section accounting, and nothing waives the required metadata
+   contract (step 2) or the legend's authority columns.
 2. **Fill it in:** replace every `[PLACEHOLDER]` with the inferred/confirmed value; replace
-   `<!-- guidance -->` blocks with real content. Set `Change posture` per the derivation rules — exactly
-   one of the four words, inputs in parentheses; the legend ships only in the root file.
+   `<!-- guidance -->` blocks with real content. Substitute the detected toolchain throughout per the
+   Phase 1b rules (no orchestrator → remove orchestrator-specific lines rather than leaving Turborepo
+   references).
    **Required metadata contract (every workspace file, no exceptions — root included):** the file opens
-   with the title, a one-line purpose, and a `Change posture: <word> (<inputs>)` line — the exact phrase
-   `Change posture:`, one of the four words, parenthesized inputs (fold consumer counts / data sensitivity
-   into the inputs). Tooling and PR agents grep for it. All other metadata rows are optional: include only
-   what is non-default or load-bearing (Status only if EXPERIMENTAL/DEPRECATED, runtime only if it differs
-   from the repo norm, Published only if external, Port/Deploy for apps). Domain (subtree) files stay
-   metadata-free.
-   **Substitute the detected toolchain (Phase 1b) throughout:** orchestrator, package-name scope
-   (`@repo/` → detected scope), package manager, and real task-command names. If there is no orchestrator,
-   remove orchestrator-specific lines rather than leaving Turborepo references.
+   with the title, a one-line purpose, and a `Change posture:` line in the Phase 2 format (fold consumer
+   counts / data sensitivity into the inputs) — tooling and PR agents grep the exact phrase. All other
+   metadata rows are optional: include only what is non-default or load-bearing (Status only if
+   EXPERIMENTAL/DEPRECATED, runtime only if it differs from the repo norm, Published only if external,
+   Port/Deploy for apps). Domain (subtree) files stay metadata-free.
 3. **Merge, never clobber.** If a real file exists at this scope, it may contain hard-won domain knowledge
    the templates can't infer:
    - Treat the existing file as the source of truth for any rule it states. The template provides
@@ -352,8 +402,8 @@ Once confirmed, for each workspace in the coverage plan:
      default — and list every drop in the report's merge plan.
    - When existing and template guidance conflict, the existing file wins unless the user said otherwise.
      Flag the conflict; don't silently resolve it.
-   - Accounting runs both directions: every **template** section must land in the merge plan as filled,
-     merged into an existing section, or skipped-with-reason. Sections with no counterpart in the existing
+   - Accounting runs both directions: every **template** section lands in the plan doc's Section
+     accounting as filled, merged, or skipped-with-reason. Sections with no counterpart in the existing
      file (e.g. Comments & documentation, Planning before building) are generated from inference — never
      silently dropped because the old file lacked them.
 4. **Remove sections that don't apply** rather than leaving them empty (a11y for backends, Port for
@@ -366,36 +416,39 @@ Once confirmed, for each workspace in the coverage plan:
    file: a `utility`/`types` package with framework deps in `dependencies`; a `config` package with
    runtime deps; a `universal` package using `node:*`; a package importing from `apps/`; an app importing
    another app.
-7. **Resolve docs & planning references** (root §9 or the app/package equivalent):
+7. **Resolve docs & planning references** (the root Documentation & Specs section or the app/package
+   equivalent):
    - `docs/` missing → keep the "create it" callout as an instruction to the human; note it in the summary.
    - `docs/specs/` has files → list up to 3 recent specs by name so the naming pattern is concrete.
    - Custom skills found → reference them by name in the planning process (e.g. "Use `/brainstorm` before
      writing the design spec. Use `/plan` for the implementation plan."). None found → generic language.
    - `docs/architecture.md` exists → add it to the reference-docs bullet with a note on what it covers.
+8. **Write the docs map** (root sweep only): `docs/docs-map.md`, generated from the plan doc's
+   Documentation inventory — the referenceable library of the repo's documentation. Contents: conflicts
+   awaiting a decision at the top (mirrored in `FLAGS.md`); a preferred-source-per-topic table; then one
+   line per doc: path · topic · status (`canonical | stale (evidence) | duplicate → [canonical] | orphan`)
+   · last-commit date. Header notes it is maintained by this skill — regenerate, don't hand-groom. The
+   root guide's documentation section points here, and every "read X for depth" pointer in generated
+   files must cite a doc the map marks canonical — never one marked stale or duplicate.
 
 ### Output constraints (apply to every generated file)
 
-- **Aim for around 200 lines per file** — a little over is fine if every line is load-bearing. This is an
+- **Aim for around 200 lines per file** — a little over is fine if every line is load-bearing. An
   adherence heuristic, not a validator: the enemy isn't line 201, it's the 400+ line file where real rules
-  get buried in reference material.
-- **The budget stacks.** Root + workspace delta (+ domain router) all load together when working in a
-  subtree, on top of user-level config. Root loads in *every* session in the repo — it is the most
-  expensive file; cut there first.
+  drown in reference material. The budget **stacks** — root + workspace delta (+ domain router) load
+  together, on top of user-level config — and root loads in *every* session, so it is the most expensive
+  file; cut there first.
+- **Offload, don't inline.** Path-specific or rarely-needed detail goes to `.claude/rules/` (loads only
+  when matching files are touched) or `docs/`, with a pointer; reserve `CLAUDE.md` for facts needed in
+  every session. When preserved hand-written content pushes a file past budget, propose specific offloads
+  in the report/summary — never silently accept the growth, and never fix it by cutting load-bearing local
+  footguns (ordering constraints like "middleware X stays last", registration steps, non-obvious wiring):
+  those are the delta's reason to exist; cut style and reference material instead. A footgun with no home
+  is a finding, not a cut.
 - **Inventories don't scale — summarize, don't census.** Don't emit one row per workspace in the root file
   of a large monorepo: group packages by category, name only the load-bearing ones, and point at the
   workspace manifest or a docs map for the full list (it's derivable — e.g. `pnpm ls -r --depth -1` — so
   duplicating it is drift). A full per-workspace table is fine up to ~8 workspaces.
-- **Over budget after a merge → propose offloads.** When preserved hand-written content pushes a file past
-  budget, the report/summary must propose specific offloads (style example blocks → `.claude/rules/`,
-  reference detail → `docs/`) — never silently accept the growth.
-- **Never cut load-bearing local footguns for brevity.** Ordering constraints ("middleware X must stay
-  last"), registration steps, and non-obvious wiring are the delta's reason to exist — cut style and
-  reference material instead. If a footgun has no home after compression, that's a finding, not a cut.
-- **The posture legend keeps its authority columns.** The per-tier "agents may / must not" mapping is the
-  PR-agent authority contract — never condense the legend to one-liners.
-- **Offload, don't inline:** push path-specific or rarely-needed detail to `.claude/rules/` (loads only
-  when matching files are touched) or to `docs/`, and reference it. Reserve `CLAUDE.md` for facts needed
-  in *every* session.
 - **Don't duplicate what tooling enforces.** If ESLint, Prettier, `tsc`, or CI already enforce a rule,
   name the tool instead of restating the rule as prose.
 - **Concrete over vague:** "run `pnpm test` before committing" beats "test your changes."
@@ -404,38 +457,34 @@ Once confirmed, for each workspace in the coverage plan:
 - **Domain (subtree) files are different:** target ~30-50 lines and act as a *router* — local conventions
   plus pointers to the matching developer-guide doc, sibling contract, or custom agent. No metadata block,
   no commands, no PR checklist (all inherited from the enclosing guide). Title is the area name (e.g.
-  "Event Handlers"), not "CLAUDE.md — …". Model the tone on existing subtree contracts; link depth, don't
-  inline it.
+  "Event Handlers"). Model the tone on existing subtree contracts; link depth, don't inline it.
 
 ### Writing the file + AGENTS.md twin
 
-For each workspace, write the content to `AGENTS.md` (the real, vendor-neutral file), then make
-`CLAUDE.md` a symlink to it:
+`AGENTS.md` is the real, vendor-neutral file; `CLAUDE.md` is a symlink to it. For each workspace, write
+the content to `AGENTS.md`, then create the link — handle by prior state:
 
-```bash
-# from inside the workspace directory
-ln -sf AGENTS.md CLAUDE.md
-```
+- **Fresh (neither exists) or `AGENTS.md` already the real file:** write `AGENTS.md`, then
+  `ln -sf AGENTS.md CLAUDE.md` (from inside the workspace directory).
+- **Real `CLAUDE.md`, no symlink:** write the reconciled content to `AGENTS.md`, then
+  `rm CLAUDE.md && ln -s AGENTS.md CLAUDE.md`.
+- **Opposite arrangement (`AGENTS.md` is a symlink → real `CLAUDE.md`):** `rm AGENTS.md` **first**, then
+  write the real `AGENTS.md`, then convert `CLAUDE.md` as above. Never write "into" a still-symlinked
+  `AGENTS.md` — the write goes through it into `CLAUDE.md`, and the later `rm CLAUDE.md` destroys the
+  only real copy.
 
-If a real `CLAUDE.md` already exists there (not a symlink), the reconciled content goes into `AGENTS.md`;
-then replace the old `CLAUDE.md` file with the symlink (`rm CLAUDE.md && ln -s AGENTS.md CLAUDE.md`) — but
-only after the user has confirmed in Phase 4, and only for files the plan marked create/reconcile.
-
-If the repo has the **opposite** arrangement — `AGENTS.md` is currently a symlink pointing at a real
-`CLAUDE.md` — remove that symlink **first** (`rm AGENTS.md`), then write the real `AGENTS.md`, then convert
-`CLAUDE.md` (`rm CLAUDE.md && ln -s AGENTS.md CLAUDE.md`). Never write "into" `AGENTS.md` while it is still
-a symlink: the write goes through it into `CLAUDE.md`, and the later `rm CLAUDE.md` destroys the only real
-copy.
-
-> macOS/Linux: symlinks work out of the box. On Windows, symlinks need Developer Mode or admin; if the
-> user is on Windows, fall back to the `@AGENTS.md` import method (thin `CLAUDE.md` containing `@AGENTS.md`)
-> and tell them why.
+Only convert files the plan marked create/reconcile, and only after Phase 4 confirmation. Windows:
+symlinks need Developer Mode or admin — fall back to a thin `CLAUDE.md` containing `@AGENTS.md` (import)
+and tell the user why.
 
 ### Write flags instead of assuming
 
-If generation left anything unresolved — report Gaps the user didn't answer, contradictions between
-existing docs and code, invariant concerns, a posture you weren't sure of — append them to `FLAGS.md` at
-the repo root (create it if absent; append, never clobber). Never resolve an ambiguity by silently guessing.
+Mid-sweep discoveries go to the plan doc's `## Discovered during scaffolding` section as they happen. When
+the sweep ends, copy everything still unresolved — plan-doc discoveries, Gaps the user didn't answer,
+contradictions between existing docs and code, invariant concerns, a posture you weren't sure of — into
+`FLAGS.md` at the repo root (create it if absent; append, never clobber) and mark those plan-doc entries
+"→ FLAGS.md". The plan doc is this run's log; `FLAGS.md` is the durable burn-down. Never resolve an
+ambiguity by silently guessing.
 
 Format: a dated `## From [what] (YYYY-MM-DD)` section; one `- [ ]` entry per item stating the
 inconsistency, the paths involved, and what was assumed in the meantime. `FLAGS.md` is a burn-down list,
@@ -446,12 +495,17 @@ entry; delete the file when it's empty.
 
 ## Phase 6 — Summarize
 
-After writing, report:
+Write the same summary into the plan doc's `## Run summary` section — the doc is now a complete record of
+the run (fine to commit with the PR for provenance, or delete after review; the user's call). Then report
+in chat:
 
 - Paths written (and which `CLAUDE.md` → `AGENTS.md` symlinks were created).
 - The coverage plan with each row's outcome (created / reconciled / ok / skipped — and why), so
   completeness is verifiable against Phase 1.
 - `FLAGS.md`: how many entries were added, or "none needed".
+- **Posture roll-call:** every workspace grouped by final tier (locked / guarded / standard / open) — the
+  human-in-the-loop check on risk; call out any posture that differs from the plan doc.
+- `docs/docs-map.md`: written/refreshed — N canonical · N stale · N duplicates · N conflicts pending.
 - Final line count per file (aim ~200; flag only if well over and bloated); if anything was offloaded to
   `.claude/rules/` or `docs/`, note what and where.
 - Merge result if an existing file was found: what was preserved, restructured, or dropped.
@@ -466,10 +520,8 @@ After writing, report:
 
 - **Not a JS/TS repo / no package.json:** say so and stop. This skill is built around the JS/TS monorepo
   templates; don't force them onto an unrelated repo.
-- **Existing files are already excellent:** report "in good shape, nothing to change" and stop. Don't
-  rewrite good files to match the template for its own sake.
+- **Existing files are already excellent and coverage is complete:** report "in good shape, nothing to
+  change" and stop. Don't rewrite good files to match the template for its own sake. If the files are
+  excellent but workspaces lack coverage, generate the missing deltas and leave the good files alone.
 - **User declines the symlink approach:** offer the `@AGENTS.md` import alternative; never silently produce
   two drifting real files.
-- **Huge monorepo (many packages):** still cover all of them, but generate in scope order (root first, then
-  apps, then packages, then warranted domains) and keep each file tight; lean on the per-workspace
-  template, don't bloat root.

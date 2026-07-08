@@ -1,14 +1,14 @@
-# CLAUDE.md — [APP_NAME]
+# [APP_NAME]
+
+[One sentence — what this app is: framework + role + primary responsibility.]
+
+Change posture: `[locked | guarded | standard | open]` ([inputs — e.g. "member-facing, handles PHI" or "internal tool"])
 
 > **App delta.** Inherits all root conventions from [`../../CLAUDE.md`](../../CLAUDE.md). This file documents only what differs or is additive for this app. Read the root guide first.
 
 <!-- Scale to the app: every workspace gets a delta because existence is mandatory (the file carries the
      posture metadata). Depth is not: only the metadata block is required; skip any section below that
      would restate root or pad a thin app. A simple app may be ~15 lines. -->
-
-[One sentence — what this app is: framework + role + primary responsibility.]
-
-Change posture: `[locked | guarded | standard | open]` ([inputs — e.g. "member-facing, handles PHI" or "internal tool"])
 
 <!-- REQUIRED above, in every workspace file: title · one-line purpose · a `Change posture:` line with
      exactly one of the four words + parenthesized inputs (fold consumer counts / data sensitivity into
