@@ -1,0 +1,12 @@
+{
+  "name": "react",
+  "description": "React: official docs + core team sources.",
+  "domains": [
+    "react.dev",
+    "github.com/facebook/react",
+    "legacy.reactjs.org",
+    "overreacted.io",
+    "tkdodo.eu",
+    "joshwcomeau.com"
+  ]
+}

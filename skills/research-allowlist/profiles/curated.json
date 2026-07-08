@@ -1,0 +1,17 @@
+{
+  "name": "curated",
+  "description": "Curated newsletters / essay publications. Editorial writing, not official docs.",
+  "domains": [
+    "every.to",
+    "pragmaticengineer.com",
+    "newsletter.pragmaticengineer.com",
+    "infoq.com",
+    "news.ycombinator.com",
+    "news.mit.edu/topic/programming",
+    "youtube.com/@arjay_the_dev",
+    "youtube.com/channel/UC6vRUjYqDuoUsYsku86Lrsw",
+    "martinfowler.com",
+    "lethain.com",
+    "simonwillison.net"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "typescript",
+  "description": "TypeScript language: official docs + trusted community sources.",
+  "domains": [
+    "typescriptlang.org",
+    "devblogs.microsoft.com/typescript",
+    "github.com/microsoft/TypeScript",
+    "mattpocock.com",
+    "totaltypescript.com",
+    "effectivetypescript.com",
+    "2ality.com"
+  ]
+}

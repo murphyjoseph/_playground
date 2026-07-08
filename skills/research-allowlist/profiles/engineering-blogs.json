@@ -1,0 +1,21 @@
+{
+  "name": "engineering-blogs",
+  "description": "Trusted engineering blogs: Guillermo Rauch, Vercel, and big-tech eng orgs.",
+  "domains": [
+    "rauchg.com",
+    "vercel.com/blog",
+    "vercel.com/engineering",
+    "netflixtechblog.com",
+    "eng.uber.com",
+    "uber.com/blog",
+    "doordash.engineering",
+    "careersatdoordash.com/engineering-blog",
+    "blog.cloudflare.com",
+    "stripe.com/blog",
+    "slack.engineering",
+    "shopify.engineering",
+    "github.blog",
+    "engineering.fb.com",
+    "anthropic.com/engineering"
+  ]
+}
