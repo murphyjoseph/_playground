@@ -1,0 +1,40 @@
+{
+  "skill_name": "audit-agent-instructions",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "Audit the agent instruction files (CLAUDE.md / AGENTS.md) in the repo at /private/tmp/claude-501/-Users-murph-Sites/f977416f-4194-430c-9237-7039a66065d8/scratchpad/fixtures/fixture-drift and write your report file into the outputs directory I gave you instead of the default report location. Don't fix anything, just report.",
+      "expected_output": "A findings report that catches all three seeded defects: (1) documented command `pnpm check-types` doesn't exist in package.json scripts (real script is `typecheck`), (2) no `Change posture:` line, (3) reversed twin \u2014 CLAUDE.md is the real file and AGENTS.md the symlink. May also flag packages/util missing coverage. No files modified in the fixture repo.",
+      "files": [],
+      "assertions": [
+        "Report file exists in outputs/ and is a markdown audit report",
+        "Flags command drift: `pnpm check-types` is documented but package.json only has a `typecheck` script",
+        "Flags the missing `Change posture:` line in the instruction file",
+        "Flags the reversed twin arrangement: CLAUDE.md is the real file and AGENTS.md is the symlink (healthy is the opposite)",
+        "Fixture repo left unmodified: `git status --porcelain` in fixture-drift is empty after the run"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "Can you check the CLAUDE.md/AGENTS.md setup in /private/tmp/claude-501/-Users-murph-Sites/f977416f-4194-430c-9237-7039a66065d8/scratchpad/fixtures/fixture-clean for drift, staleness, or symlink problems? Write the report file into the outputs directory I gave you instead of the default report location.",
+      "expected_output": "A clean verdict: AGENTS.md real + CLAUDE.md symlink is the healthy arrangement, posture line present and well-formed, commands match package.json scripts. No manufactured findings. No files modified in the fixture repo.",
+      "files": [],
+      "assertions": [
+        "Report file exists in outputs/ and gives a clean verdict with zero asserted findings",
+        "Does NOT flag the healthy arrangement (AGENTS.md real, CLAUDE.md symlink) or the valid posture line as problems",
+        "Fixture repo left unmodified: `git status --porcelain` in fixture-clean is empty after the run"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit agent instructions health for the repo /private/tmp/claude-501/-Users-murph-Sites/f977416f-4194-430c-9237-7039a66065d8/scratchpad/fixtures/fixture-nocov \u2014 put the report file in the outputs directory I gave you instead of the default report location.",
+      "expected_output": "Reports 'no coverage' (repo has no CLAUDE.md or AGENTS.md anywhere) and does NOT generate instruction files or any other file inside the fixture repo. Points at /init-agent-instructions as the way to add coverage.",
+      "files": [],
+      "assertions": [
+        "Report states the repo has no CLAUDE.md/AGENTS.md coverage",
+        "No instruction files were generated: fixture-nocov contains no CLAUDE.md or AGENTS.md and `git status --porcelain` is empty after the run",
+        "Report directs the user to /init-agent-instructions (or names it) as the way to add coverage, rather than offering to write files"
+      ]
+    }
+  ]
+}
