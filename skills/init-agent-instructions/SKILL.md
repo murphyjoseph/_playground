@@ -113,9 +113,9 @@ goal is to pull the *right* context on demand, not to fragment it.
 Read silently. Do not ask for information you can find yourself.
 
 ### Always read
-- **This skill's own assets first** (from the skill directory, not the repo): all four `templates/*.md`
-  and `references/claudemd-best-practices.md` (the audit rubric), in full. The report's "Skill assets
-  loaded" line proves it.
+- **This skill's own assets first** (from the skill directory, not the repo): all four `templates/*.md`,
+  `references/claudemd-best-practices.md` (the audit rubric), and `references/plan-template.md` (the plan
+  document's structure), in full. The report's "Skill assets loaded" line proves it.
 - `package.json` — name, scripts, dependencies, devDependencies, peerDependencies, exports field,
   `packageManager`
 - Lockfile + `packageManager` field — confirm the package manager (see Phase 1b)
@@ -136,9 +136,12 @@ Read silently. Do not ask for information you can find yourself.
 - `<workspace-glob>/*/package.json` for **every** workspace dir (not just `apps/` and `packages/`) —
   names, scope, framework deps
 - **Documentation census:** every `*.md`/`*.mdx` in the repo (excluding `node_modules`, build output,
-  generated dirs, changelogs). Classify each from its title/frontmatter/head — full-read only suspected
-  conflicts and canonical candidates. Note last-commit date (`git log -1 --format=%cs -- <path>`) as the
-  staleness signal. Feeds the doc-conflict audit (Phase 3) and the docs-map artifact (Phase 5).
+  generated dirs, changelogs). Delegate this to a read-only subagent (an Explore-type agent via the Task
+  tool) that classifies each doc from its title/frontmatter/head, notes last-commit date
+  (`git log -1 --format=%cs -- <path>`) as the staleness signal, and returns just the inventory — path ·
+  topic · classification · date — plus suspected conflicts and canonical candidates. Full-read in the main
+  context only those flagged files. Feeds the doc-conflict audit (Phase 3) and the docs-map artifact
+  (Phase 5). If subagents aren't available, run the census directly but keep only the inventory table.
 
 ### App scope — also read
 - `src/main.ts` or `src/index.ts` or `app/layout.tsx` or framework entry equivalent
@@ -259,101 +262,9 @@ pointer (where the doc is, the finding count, which questions need answers) plus
 `## Discovered during scaffolding` and `## Run summary` are created empty — Phase 5 and Phase 6 append to
 them; nothing else in the document is touched after confirmation.
 
-```
-## Agent Instructions — Audit & Plan
-
-### Repo shape
-[monorepo | single package] — [reason]
-Toolchain: [orchestrator or "no orchestrator"] · [package manager] · scope [@detected/] (per Phase 1b)
-Skill assets loaded: [templates/root.md ✓ · app.md ✓ · package.md ✓ · domain.md ✓ · best-practices rubric ✓ — name any that failed to load, and stop if any did]
-
-### Coverage plan
-| Workspace        | Type/Framework | Existing CLAUDE.md | Action               |
-| ---------------- | -------------- | ------------------ | -------------------- |
-| / (root)         | —              | yes / no           | create / reconcile / ok |
-| apps/[x]         | [framework]    | yes / no           | create / reconcile / ok |
-| packages/[y]     | [pkg-type]     | yes / no           | create / reconcile / ok |
-| [pkg]/src/[dir]  | domain         | yes / no           | create / reconcile / ok — [why warranted, per 1c] |
-
-### Findings  (empty = repo is in good shape)
-- [path] · [severity] · [issue] → [fix] · concern? [real — affects agents/docs | cosmetic | informational]
-- ...
-
-### Practice review  (confusing or inconsistent practices — decide before scaffolding)
-Findings above = defects in the instruction files themselves; Practice review = codebase practices the
-docs would codify. For each: what the codebase does today, why it reads as confusing or inconsistent, and
-a recommendation.
-The generated docs describe what IS, so each item needs a decision: codify as-is, or change direction.
-- [practice] · [evidence paths] · [recommendation]
-  > decision: [document as-is | adopt new practice: …] ← mark before confirming
-
-### Inferred (correct me if wrong)
-| Field | Value | Source |
-| ----- | ----- | ------ |
-| Orchestrator / package manager / scope | ... | root configs (Phase 1b) |
-| Framework(s) / pkg types | ... | deps |
-| Runtime targets | ... | tsconfig / deps |
-| Consumers (per package) | ... | grep across monorepo |
-| Dev / build / test commands | ... | package.json scripts |
-| Deploy target | ... or unknown | config files / framework |
-| Change posture (per workspace) | locked/guarded/standard/open (inputs) | posture derivation rules |
-
-### Docs & planning tooling
-- `docs/` folder: [found | not found — will note it needs to be created]
-- `docs/specs/`: [found (N specs) | not found]
-- `docs/architecture.md`: [found | not found]
-- Custom skills in `.claude/skills/` (or legacy `.claude/commands/`): [list | none found]
-
-### Documentation inventory  (feeds docs/docs-map.md — see Phase 5)
-- Docs found: [N files across docs/, apps/docs/, READMEs, …]
-- Conflicts: [doc A vs doc B on [topic] — recommend [which wins] because …]
-- Dead / stale: [path — evidence, e.g. "describes removed src/infra/; last touched 2024-06"]
-- Duplicates: [path → duplicate of [canonical]]
-- Preferred source per topic: [topic → path — this table becomes the docs map]
-
-### Merge plan  (only if existing files were found)
-- Keep verbatim: [hand-written domain rules / decisions worth preserving — list them]
-- Restructure into template: [content that maps onto template sections]
-- Drop: [stale or template-redundant content — with reason]
-- AGENTS.md handling: [keep symlink | convert to symlink | @AGENTS.md import | n/a]
-
-### Section accounting  (every template section lands somewhere: filled · merged · skipped-with-reason)
-- Root required — skipping any needs a reason here and your confirmation:
-  - Operating Rules (FLAGS.md rule + update-docs-in-same-PR rule): [in | skipped — reason]
-  - Metadata Legend with authority columns: [in | skipped — reason]
-  - Package Design Invariants (dep footprint, two-consumer rule, no upward imports): [in | skipped — reason]
-  - Comments & documentation: [in | skipped — reason]
-  - Planning before building / docs & specs: [in | skipped — reason]
-- Skipped elsewhere: [workspace · section — reason, e.g. "apps/api: Accessibility — backend"]
-- Filled fresh (no counterpart in the existing file): [sections — only when reconciling]
-
-### Dependency footprint check  (one row per package — run it against actual `dependencies`; a package with no row = incomplete report)
-- [✓ | ⚠] packages/[a] ([pkg-type]): [e.g., "✓ clean" | "⚠ `multer` (Express middleware) in a utility package — split or reclassify"]
-- [✓ | ⚠] packages/[b] ([pkg-type]): ...
-
-### Gaps — will leave as [PLACEHOLDER]
-- [ ] [e.g., deploy target — not inferable from files]
-- [ ] [e.g., out-of-scope declarations — need domain knowledge]
-
-### Generic content to relocate (if any)
-[lines that should move to ~/.claude/CLAUDE.md — shown for approval; not written outside the repo without OK]
-
-### Sync method
-AGENTS.md = real file, CLAUDE.md → symlink to it, per workspace. [Note if any existing setup differs.]
-
-### Questions  (answer inline, right under each question)
-[Only what genuinely cannot be inferred. Omit if nothing is unclear. Anything unanswered at confirm time
-gets the safer reading, logged under Discovered — the sweep never stops to ask.]
-1. [question]
-   > answer:
-
-## Discovered during scaffolding
-<!-- Appended live during Phase 5: one line per item — what was found, where, the assumption taken.
-     Empty at plan time. -->
-
-## Run summary
-<!-- Written by Phase 6 when the sweep completes. Empty at plan time. -->
-```
+The document's exact structure lives in `references/plan-template.md` (this skill's directory — you read
+it in Phase 2). Follow it section-for-section; its conditional sections (Merge plan, Generic content to
+relocate) appear only when applicable.
 
 End the chat message with: **"Review and edit `agent-instructions-plan.md` (answer the Questions, mark the
 Practice review decisions), then reply `yes` to run the sweep."** If corrections come back in chat instead
@@ -367,12 +278,22 @@ On `yes`: **re-read `agent-instructions-plan.md` first** — the user may have e
 answers and Practice review decisions override the original inferences. Then run the whole coverage plan
 start-to-finish in one sweep:
 
-- **Order:** root first → each app (immediately followed by any domain subtrees inside it) → each package
-  (immediately followed by its domain subtrees). Domains ride with their enclosing workspace, never as a
-  trailing phase — they inherit from a guide that must already be final.
+- **Order:** root first, inline, in the main context — every other guide inherits from it, so it must be
+  final before anything else starts. Then the workspaces: each app or package immediately followed by any
+  domain subtrees inside it. Domains ride with their enclosing workspace, never as a trailing phase.
+- **Fan out past ~5 workspaces.** At or below that, generate inline in the order above. Above it, launch
+  one general-purpose subagent per workspace (Task tool), all in a single message so they run in parallel.
+  Each subagent's prompt carries: the absolute path to this skill's directory (it reads its own template
+  and these Phase 5 rules itself — steps 1-7, output constraints, and the AGENTS.md-twin procedure below),
+  the workspace path with its coverage-plan row, the path to the confirmed `agent-instructions-plan.md`,
+  and the path to the final root guide. Each subagent handles its workspace **and its domain subtrees**,
+  writes the `AGENTS.md` + symlink, and returns in its summary: files written · line counts · remaining
+  `[PLACEHOLDER]`s · invariant concerns · discovered-during-scaffolding lines. **Subagents never write to
+  the plan doc or `FLAGS.md`** — the orchestrator appends their returned discoveries after collecting all
+  results, so parallel runs never contend for one file.
 - **Non-interactive:** never stop to ask mid-sweep. Ambiguity discovered mid-run → take the safer reading,
   append one line to the plan doc's `## Discovered during scaffolding` section (what, where, assumption
-  taken), and keep moving.
+  taken — subagents report it in their summary instead), and keep moving.
 
 For each workspace in the coverage plan:
 
