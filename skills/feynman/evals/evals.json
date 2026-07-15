@@ -1,0 +1,26 @@
+{
+  "skill_name": "feynman",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "saml-tier2-flow-page",
+      "prompt": "what's SAML? like when our customers ask for SSO what is actually happening",
+      "expected_output": "Plain-language chat summary with an analogy, then a self-contained interactive HTML page built without asking: SVG step-through flow with browser/SP/IdP actors, traveling token, labeled arrows, glossary covering SAML/IdP/SP/assertion, recap. Saved under a feynman output dir and index updated.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "eval_name": "taco-tier0-restraint",
+      "prompt": "what's a taco?",
+      "expected_output": "2-4 plain sentences in chat. No HTML page built, no page offered.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "eval_name": "monad-tier-judgment",
+      "prompt": "ok what is a monad, everyone keeps making jokes about them",
+      "expected_output": "Plain-language explanation that never defines jargon with jargon (no 'monoid in the category of endofunctors' as the actual explanation). Tier 1 or 2 acceptable: either a chat explanation with an offer of a page, or a page. Any jargon used is glossed.",
+      "files": []
+    }
+  ]
+}
