@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "Flags the stale '// retry up to 3 times' comment in src/cache.ts",
+      "passed": true,
+      "evidence": "Report: src/cache.ts:4 [critical] stale comment vs MAX_RETRIES = 5; fix: delete, constant carries it."
+    },
+    {
+      "text": "Flags exported parseWindow missing JSDoc/TSDoc",
+      "passed": true,
+      "evidence": "Report: src/index.ts:9 [important] parseWindow lacks TSDoc; contract (format, ms units, clamp) non-obvious; suggested TSDoc included."
+    },
+    {
+      "text": "Flags README 'Parsing windows' duplicating parseWindow source (drift risk)",
+      "passed": true,
+      "evidence": "Report: README.md [important] duplicates source verbatim; fails drift test and one-fact-one-home; delete section."
+    },
+    {
+      "text": "Does NOT flag self-evident clampMs one-liner",
+      "passed": true,
+      "evidence": "Report explicitly lists clampMs under 'deliberately not flagged' (one-line private helper)."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "eval_id": 4,
+  "eval_name": "artifact-existence",
+  "prompt": "Create a docs page at docs/configuration.md explaining how to configure the retry behavior (maxRetries, baseDelayMs).",
+  "assertions": [
+    "Does not create docs/configuration.md",
+    "Report proposes the better home: the existing README Configuration section and/or the documented RetryOptions type, citing duplication/drift as the reason"
+  ]
+}

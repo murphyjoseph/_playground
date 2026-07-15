@@ -1,0 +1,11 @@
+{
+  "eval_id": 0,
+  "eval_name": "seeded-scan",
+  "prompt": "Review the documentation and comment quality of the current uncommitted changes in the repo at <fixture>. What's wrong, what's missing, and what should be deleted?",
+  "assertions": [
+    "Flags the stale '// retry up to 3 times' comment in src/cache.ts as wrong or misleading relative to MAX_RETRIES = 5",
+    "Flags the exported parseWindow function in src/index.ts as missing a JSDoc/TSDoc comment",
+    "Flags the README 'Parsing windows' section for duplicating the parseWindow source code (drift risk), recommending deletion or a link to the source",
+    "Does NOT flag the self-evident one-line clampMs helper for missing documentation"
+  ]
+}

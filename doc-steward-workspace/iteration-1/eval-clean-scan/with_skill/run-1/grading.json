@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "Reports no critical or important findings (nothing-to-flag verdict)",
+      "passed": true,
+      "evidence": "Report: 'Nothing to flag \u2014 documentation is adequate.' Tally 0 critical, 0 important, 0 nit."
+    },
+    {
+      "text": "Does not invent issues or surface nit-only findings",
+      "passed": true,
+      "evidence": "Zero findings surfaced; report explains why the new TSDoc passes each gate."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "pass_rate": 1.0
+  }
+}

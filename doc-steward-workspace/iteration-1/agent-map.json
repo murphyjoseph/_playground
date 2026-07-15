@@ -1,0 +1,12 @@
+{
+  "a709848a2907b8866": "eval-seeded-scan/with_skill",
+  "ab3364c7708cf03e3": "eval-seeded-scan/without_skill",
+  "a1d439208ec196753": "eval-clean-scan/with_skill",
+  "ac247daa8b4f6b916": "eval-clean-scan/without_skill",
+  "a7c21461d11d2867f": "eval-write-jsdoc/with_skill",
+  "a0a7c68188b87931c": "eval-write-jsdoc/without_skill",
+  "a130b9a4ef8ca25b5": "eval-refusal-rename/with_skill",
+  "a367277f31abbf117": "eval-refusal-rename/without_skill",
+  "ad5acf3f3eedf1c59": "eval-artifact-existence/with_skill",
+  "acc2270ad23e91087": "eval-artifact-existence/without_skill"
+}

@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "haversineDistance JSDoc states return units (meters)",
+      "passed": true,
+      "evidence": "'Compute the great-circle distance between two points, in meters.' Plus spherical-Earth caveat and ~0.5% error bound."
+    },
+    {
+      "text": "boundingBox JSDoc documents tuple order/meaning",
+      "passed": true,
+      "evidence": "@returns `[minLat, minLon, maxLat, maxLon]` in decimal degrees."
+    },
+    {
+      "text": "toRad remains undocumented or explicitly declined",
+      "passed": true,
+      "evidence": "toRad left bare; report notes it was declined as a self-evident one-line private helper."
+    },
+    {
+      "text": "No @param/@returns merely restating name+type",
+      "passed": true,
+      "evidence": "haversineDistance has no @param tags (names+units note suffice); boundingBox tags carry units and tuple semantics the types can't."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "pass_rate": 1.0
+  }
+}

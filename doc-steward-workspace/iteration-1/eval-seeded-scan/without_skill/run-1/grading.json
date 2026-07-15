@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "Flags the stale '// retry up to 3 times' comment in src/cache.ts",
+      "passed": true,
+      "evidence": "Report: src/cache.ts:4 stale comment, says 3 but MAX_RETRIES = 5; delete it."
+    },
+    {
+      "text": "Flags exported parseWindow missing JSDoc/TSDoc",
+      "passed": true,
+      "evidence": "Report: src/index.ts:9 parseWindow has no JSDoc while sibling createClient does; suggested doc block included."
+    },
+    {
+      "text": "Flags README 'Parsing windows' duplicating parseWindow source (drift risk)",
+      "passed": true,
+      "evidence": "Report flags the README source dump and recommends replacing with a usage example (framed as non-compiling snippet more than drift, but the fix is right)."
+    },
+    {
+      "text": "Does NOT flag self-evident clampMs one-liner",
+      "passed": true,
+      "evidence": "clampMs not mentioned as needing docs."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "pass_rate": 1.0
+  }
+}

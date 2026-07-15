@@ -1,0 +1,9 @@
+{
+  "eval_id": 1,
+  "eval_name": "clean-scan",
+  "prompt": "Review the documentation and comment quality of the current uncommitted changes in the repo at <fixture>. What's wrong, what's missing, and what should be deleted?",
+  "assertions": [
+    "Reports no critical or important findings (nothing-to-flag verdict)",
+    "Does not invent issues or surface nit-only findings to appear thorough"
+  ]
+}

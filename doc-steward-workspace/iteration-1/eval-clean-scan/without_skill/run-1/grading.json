@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "Reports no critical or important findings (nothing-to-flag verdict)",
+      "passed": true,
+      "evidence": "Report verdict: 'clean \u2014 nothing is wrong, nothing should be deleted, no changes required.'"
+    },
+    {
+      "text": "Does not invent issues or surface nit-only findings",
+      "passed": false,
+      "evidence": "Surfaced 3 'optional nits' (missing @returns, wording imprecision, @param months) in a clean diff \u2014 exactly the nit-padding the skill forbids."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "pass_rate": 0.5
+  }
+}

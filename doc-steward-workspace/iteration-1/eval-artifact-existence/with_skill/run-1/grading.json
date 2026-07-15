@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "Does not create docs/configuration.md",
+      "passed": true,
+      "evidence": "fixture/docs/ does not exist; no fixture files created or modified."
+    },
+    {
+      "text": "Report proposes the better home citing duplication/drift",
+      "passed": true,
+      "evidence": "Report: facts already live in RetryOptions doc comments + README Configuration; a docs/ page is a third home with no reader-moment and high drift risk; offers to create anyway if user insists."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "pass_rate": 1.0
+  }
+}

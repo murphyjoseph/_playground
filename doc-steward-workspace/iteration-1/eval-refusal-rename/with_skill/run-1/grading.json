@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "Proposes/applies a descriptive rename as the primary fix",
+      "passed": true,
+      "evidence": "arr renamed to paidUnfulfilled in src/orders.ts; no comment added."
+    },
+    {
+      "text": "Does not add a comment restating the filter",
+      "passed": true,
+      "evidence": "Final file has no comment; report: 'a comment would only restate the code; the confusion was the name'."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "pass_rate": 1.0
+  }
+}

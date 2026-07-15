@@ -1,0 +1,387 @@
+{
+  "metadata": {
+    "skill_name": "doc-steward",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-07-15T17:37:15Z",
+    "evals_run": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "runs_per_configuration": 3
+  },
+  "runs": [
+    {
+      "eval_id": 4,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 89.9,
+        "tokens": 42017,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Does not create docs/configuration.md",
+          "passed": true,
+          "evidence": "fixture/docs/ does not exist; no fixture files created or modified."
+        },
+        {
+          "text": "Report proposes the better home citing duplication/drift",
+          "passed": true,
+          "evidence": "Report: facts already live in RetryOptions doc comments + README Configuration; a docs/ page is a third home with no reader-moment and high drift risk; offers to create anyway if user insists."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 69.3,
+        "tokens": 40855,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports no critical or important findings (nothing-to-flag verdict)",
+          "passed": true,
+          "evidence": "Report: 'Nothing to flag \u2014 documentation is adequate.' Tally 0 critical, 0 important, 0 nit."
+        },
+        {
+          "text": "Does not invent issues or surface nit-only findings",
+          "passed": true,
+          "evidence": "Zero findings surfaced; report explains why the new TSDoc passes each gate."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 2,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 64.6,
+        "tokens": 40456,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Proposes/applies a descriptive rename as the primary fix",
+          "passed": true,
+          "evidence": "arr renamed to paidUnfulfilled in src/orders.ts; no comment added."
+        },
+        {
+          "text": "Does not add a comment restating the filter",
+          "passed": true,
+          "evidence": "Final file has no comment; report: 'a comment would only restate the code; the confusion was the name'."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 100.9,
+        "tokens": 43587,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags the stale '// retry up to 3 times' comment in src/cache.ts",
+          "passed": true,
+          "evidence": "Report: src/cache.ts:4 [critical] stale comment vs MAX_RETRIES = 5; fix: delete, constant carries it."
+        },
+        {
+          "text": "Flags exported parseWindow missing JSDoc/TSDoc",
+          "passed": true,
+          "evidence": "Report: src/index.ts:9 [important] parseWindow lacks TSDoc; contract (format, ms units, clamp) non-obvious; suggested TSDoc included."
+        },
+        {
+          "text": "Flags README 'Parsing windows' duplicating parseWindow source (drift risk)",
+          "passed": true,
+          "evidence": "Report: README.md [important] duplicates source verbatim; fails drift test and one-fact-one-home; delete section."
+        },
+        {
+          "text": "Does NOT flag self-evident clampMs one-liner",
+          "passed": true,
+          "evidence": "Report explicitly lists clampMs under 'deliberately not flagged' (one-line private helper)."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 72.7,
+        "tokens": 41423,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "haversineDistance JSDoc states return units (meters)",
+          "passed": true,
+          "evidence": "'Compute the great-circle distance between two points, in meters.' Plus spherical-Earth caveat and ~0.5% error bound."
+        },
+        {
+          "text": "boundingBox JSDoc documents tuple order/meaning",
+          "passed": true,
+          "evidence": "@returns `[minLat, minLon, maxLat, maxLon]` in decimal degrees."
+        },
+        {
+          "text": "toRad remains undocumented or explicitly declined",
+          "passed": true,
+          "evidence": "toRad left bare; report notes it was declined as a self-evident one-line private helper."
+        },
+        {
+          "text": "No @param/@returns merely restating name+type",
+          "passed": true,
+          "evidence": "haversineDistance has no @param tags (names+units note suffice); boundingBox tags carry units and tuple semantics the types can't."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 72.6,
+        "tokens": 38130,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Does not create docs/configuration.md",
+          "passed": false,
+          "evidence": "fixture/docs/configuration.md created: options table, backoff formula, delay schedule \u2014 a third copy of facts owned by RetryOptions + README."
+        },
+        {
+          "text": "Report proposes the better home citing duplication/drift",
+          "passed": false,
+          "evidence": "Report explains the page written; no pushback on existence, no duplication/drift concern raised."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 1,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 85.3,
+        "tokens": 37207,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Reports no critical or important findings (nothing-to-flag verdict)",
+          "passed": true,
+          "evidence": "Report verdict: 'clean \u2014 nothing is wrong, nothing should be deleted, no changes required.'"
+        },
+        {
+          "text": "Does not invent issues or surface nit-only findings",
+          "passed": false,
+          "evidence": "Surfaced 3 'optional nits' (missing @returns, wording imprecision, @param months) in a clean diff \u2014 exactly the nit-padding the skill forbids."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.0,
+        "passed": 0,
+        "failed": 0,
+        "total": 2,
+        "time_seconds": 51.9,
+        "tokens": 35200,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Proposes/applies a descriptive rename as the primary fix",
+          "passed": false,
+          "evidence": "arr kept; only a comment added. Report calls renaming 'out of scope'."
+        },
+        {
+          "text": "Does not add a comment restating the filter",
+          "passed": false,
+          "evidence": "Added '// Orders that have been paid but not yet fulfilled\u2026' \u2014 restates o.status === \"paid\" && o.fulfilledAt === null (adds only the word 'backlog')."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 0,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 112.6,
+        "tokens": 39868,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "Flags the stale '// retry up to 3 times' comment in src/cache.ts",
+          "passed": true,
+          "evidence": "Report: src/cache.ts:4 stale comment, says 3 but MAX_RETRIES = 5; delete it."
+        },
+        {
+          "text": "Flags exported parseWindow missing JSDoc/TSDoc",
+          "passed": true,
+          "evidence": "Report: src/index.ts:9 parseWindow has no JSDoc while sibling createClient does; suggested doc block included."
+        },
+        {
+          "text": "Flags README 'Parsing windows' duplicating parseWindow source (drift risk)",
+          "passed": true,
+          "evidence": "Report flags the README source dump and recommends replacing with a usage example (framed as non-compiling snippet more than drift, but the fix is right)."
+        },
+        {
+          "text": "Does NOT flag self-evident clampMs one-liner",
+          "passed": true,
+          "evidence": "clampMs not mentioned as needing docs."
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 68.0,
+        "tokens": 37388,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "haversineDistance JSDoc states return units (meters)",
+          "passed": true,
+          "evidence": "Report: documented units explicitly (decimal degrees in, meters out)."
+        },
+        {
+          "text": "boundingBox JSDoc documents tuple order/meaning",
+          "passed": true,
+          "evidence": "@returns tuple of [minLat, minLon, maxLat, maxLon] in decimal degrees."
+        },
+        {
+          "text": "toRad remains undocumented or explicitly declined",
+          "passed": false,
+          "evidence": "Added '/** Converts degrees to radians. */' on toRad \u2014 restates the name of a self-evident private one-liner."
+        },
+        {
+          "text": "No @param/@returns merely restating name+type",
+          "passed": true,
+          "evidence": "@param lines carry units (decimal degrees, meters), which the types don't say."
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 79.48,
+        "stddev": 15.3167,
+        "min": 64.6,
+        "max": 100.9
+      },
+      "tokens": {
+        "mean": 41667.6,
+        "stddev": 1224.1629,
+        "min": 40456,
+        "max": 43587
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.45,
+        "stddev": 0.4472,
+        "min": 0.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 78.08,
+        "stddev": 22.698,
+        "min": 51.9,
+        "max": 112.6
+      },
+      "tokens": {
+        "mean": 37558.6,
+        "stddev": 1686.3828,
+        "min": 35200,
+        "max": 39868
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.55",
+      "time_seconds": "+1.4",
+      "tokens": "+4109"
+    }
+  },
+  "notes": []
+}

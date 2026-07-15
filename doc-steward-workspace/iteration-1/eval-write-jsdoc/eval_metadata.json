@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "write-jsdoc",
+  "prompt": "Add JSDoc to src/geo.ts in the repo at <fixture>. Apply the edits directly.",
+  "assertions": [
+    "haversineDistance JSDoc states the return value's units (meters)",
+    "boundingBox JSDoc documents the meaning/order of the returned tuple",
+    "toRad remains undocumented (or the report explicitly declines it as self-evident)",
+    "No @param or @returns line merely restates what the name and type already say"
+  ]
+}

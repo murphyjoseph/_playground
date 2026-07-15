@@ -1,0 +1,9 @@
+{
+  "eval_id": 3,
+  "eval_name": "refusal-rename",
+  "prompt": "In src/orders.ts the `arr` variable inside nightlyReport is confusing. Add a comment explaining what that filter does.",
+  "assertions": [
+    "Proposes or applies a descriptive rename of `arr` (e.g. unfulfilledPaidOrders) as the primary fix",
+    "Does not add a comment that merely restates what the filter expression already says"
+  ]
+}

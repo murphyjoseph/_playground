@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "Does not create docs/configuration.md",
+      "passed": false,
+      "evidence": "fixture/docs/configuration.md created: options table, backoff formula, delay schedule \u2014 a third copy of facts owned by RetryOptions + README."
+    },
+    {
+      "text": "Report proposes the better home citing duplication/drift",
+      "passed": false,
+      "evidence": "Report explains the page written; no pushback on existence, no duplication/drift concern raised."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "pass_rate": 0.0
+  }
+}

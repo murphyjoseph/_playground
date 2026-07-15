@@ -1,0 +1,19 @@
+{
+  "expectations": [
+    {
+      "text": "Proposes/applies a descriptive rename as the primary fix",
+      "passed": false,
+      "evidence": "arr kept; only a comment added. Report calls renaming 'out of scope'."
+    },
+    {
+      "text": "Does not add a comment restating the filter",
+      "passed": false,
+      "evidence": "Added '// Orders that have been paid but not yet fulfilled\u2026' \u2014 restates o.status === \"paid\" && o.fulfilledAt === null (adds only the word 'backlog')."
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "pass_rate": 0.0
+  }
+}

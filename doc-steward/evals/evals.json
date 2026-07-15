@@ -1,0 +1,75 @@
+{
+  "skill_name": "doc-steward",
+  "evals": [
+    {
+      "id": 0,
+      "name": "seeded-scan",
+      "prompt": "Review the documentation and comment quality of the current uncommitted changes in the repo at <fixture>. What's wrong, what's missing, and what should be deleted?",
+      "expected_output": "Catches all three seeded flaws (stale retry comment in src/cache.ts, undocumented exported parseWindow in src/index.ts, README section duplicating the parseWindow source) and does NOT flag the self-evident clampMs one-liner.",
+      "files": ["fixtures/seeded-scan"],
+      "assertions": [
+        "Flags the stale '// retry up to 3 times' comment in src/cache.ts as wrong or misleading relative to MAX_RETRIES = 5",
+        "Flags the exported parseWindow function in src/index.ts as missing a JSDoc/TSDoc comment",
+        "Flags the README 'Parsing windows' section for duplicating the parseWindow source code (drift risk), recommending deletion or a link to the source",
+        "Does NOT flag the self-evident one-line clampMs helper for missing documentation"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "clean-scan",
+      "prompt": "Review the documentation and comment quality of the current uncommitted changes in the repo at <fixture>. What's wrong, what's missing, and what should be deleted?",
+      "expected_output": "Reports 'nothing to flag' (or equivalent) without inventing findings or padding with nits.",
+      "files": ["fixtures/clean-scan"],
+      "assertions": [
+        "Reports no critical or important findings (nothing-to-flag verdict)",
+        "Does not invent issues or surface nit-only findings to appear thorough"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "write-jsdoc",
+      "prompt": "Add JSDoc to src/geo.ts in the repo at <fixture>. Apply the edits directly.",
+      "expected_output": "Documents the two exported functions with caller-contract docs (units, tuple shape), declines the self-evident toRad one-liner, no type-restating @param noise.",
+      "files": ["fixtures/write-jsdoc"],
+      "assertions": [
+        "haversineDistance JSDoc states the return value's units (meters)",
+        "boundingBox JSDoc documents the meaning/order of the returned tuple",
+        "toRad remains undocumented (or the report explicitly declines it as self-evident)",
+        "No @param or @returns line merely restates what the name and type already say"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "refusal-rename",
+      "prompt": "In src/orders.ts the `arr` variable inside nightlyReport is confusing. Add a comment explaining what that filter does.",
+      "expected_output": "Proposes/applies a descriptive rename (making the code self-documenting) rather than complying with a restating comment.",
+      "files": ["fixtures/refusal-rename"],
+      "assertions": [
+        "Proposes or applies a descriptive rename of `arr` (e.g. unfulfilledPaidOrders) as the primary fix",
+        "Does not add a comment that merely restates what the filter expression already says"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "stale-propagation",
+      "prompt": "Review the documentation and comment quality of the current uncommitted changes in the repo at <fixture>. What's wrong, what's missing, and what should be deleted?",
+      "expected_output": "The diff only changes a default value in source; the skill must still flag the committed, out-of-diff README that documents the old default as now-stale.",
+      "files": ["fixtures/stale-propagation"],
+      "assertions": [
+        "Flags the README (outside the diff) as stale because it documents the old default value changed by the diff",
+        "Suggests fixing or de-duplicating the README fact (point at the single source) rather than leaving two homes"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "artifact-existence",
+      "prompt": "Create a docs page at docs/configuration.md explaining how to configure the retry behavior (maxRetries, baseDelayMs).",
+      "expected_output": "Declines to create the page; points out the README Configuration section and RetryOptions type already own these facts, and duplicating them creates drift.",
+      "files": ["fixtures/artifact-existence"],
+      "assertions": [
+        "Does not create docs/configuration.md",
+        "Report proposes the better home: the existing README Configuration section and/or the documented RetryOptions type, citing duplication/drift as the reason"
+      ]
+    }
+  ]
+}

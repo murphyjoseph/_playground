@@ -1,0 +1,29 @@
+{
+  "expectations": [
+    {
+      "text": "haversineDistance JSDoc states return units (meters)",
+      "passed": true,
+      "evidence": "Report: documented units explicitly (decimal degrees in, meters out)."
+    },
+    {
+      "text": "boundingBox JSDoc documents tuple order/meaning",
+      "passed": true,
+      "evidence": "@returns tuple of [minLat, minLon, maxLat, maxLon] in decimal degrees."
+    },
+    {
+      "text": "toRad remains undocumented or explicitly declined",
+      "passed": false,
+      "evidence": "Added '/** Converts degrees to radians. */' on toRad \u2014 restates the name of a self-evident private one-liner."
+    },
+    {
+      "text": "No @param/@returns merely restating name+type",
+      "passed": true,
+      "evidence": "@param lines carry units (decimal degrees, meters), which the types don't say."
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 3,
+    "pass_rate": 0.75
+  }
+}
