@@ -5,7 +5,7 @@
       "id": 0,
       "eval_name": "saml-tier2-flow-page",
       "prompt": "what's SAML? like when our customers ask for SSO what is actually happening",
-      "expected_output": "Plain-language chat summary with an analogy, then a self-contained interactive HTML page built without asking: SVG step-through flow with browser/SP/IdP actors, traveling token, labeled arrows, glossary covering SAML/IdP/SP/assertion, recap. Saved under a feynman output dir and index updated.",
+      "expected_output": "Plain-language chat summary with an analogy, then a self-contained interactive HTML page built without asking: SVG step-through flow with browser/SP/IdP actors, traveling token, labeled arrows, glossary covering SAML/IdP/SP/assertion, at least one prediction bet at a pivotal step, a Check-yourself think-then-reveal recall section, and a recap ending with the general abstract pattern. Saved under a feynman output dir and index updated.",
       "files": []
     },
     {

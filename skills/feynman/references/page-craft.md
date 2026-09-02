@@ -17,9 +17,10 @@ Adapt to the topic; omit sections that don't apply rather than padding.
 2. **The problem it solves** — 2–3 sentences.
 3. **Cast of characters** — actor boxes with names, one-line roles, and their colors, introduced BEFORE the flow animates (Mayer's pre-training).
 4. **The flow** — the centerpiece. SVG actors + labeled arrows + a visible token traveling between them. Controls: prev/next buttons, step counter ("3 / 7"), left/right arrow keys, optional play button. A narration caption updates per step, fixed in one spot adjacent to the canvas.
-5. **Play with it** — only when a parameter genuinely teaches: toggles or choices showing what-ifs ("what if the assertion is expired?" → watch the flow fail at step 5). Skip entirely if no what-if changes understanding.
+5. **Play with it** — only when a parameter genuinely teaches: toggles or choices showing what-ifs ("what if the assertion is expired?" → watch the flow fail at step 5). Ask for a two-button bet BEFORE running each what-if, then run it — prediction-then-feedback beats passive toggling. Frame what-ifs as contrasts: after the run, one line naming what structurally differed from the happy path. Skip entirely if no what-if changes understanding.
 6. **Dictionary** — jargon terms get a dotted underline with hover/tap tooltip; a collapsible glossary panel lists them all. Every glossed term in the prose MUST have a dictionary entry.
-7. **Recap** — 3 bullets max.
+7. **Check yourself** — 2–4 recall questions, think-then-reveal: question shown, answer behind a "reveal" button, reveal confirms or corrects in one sentence. Recall, not recognition — no multiple choice here (bets are the multiple-choice moment). Questions target the flow's causal joints ("what does the SP check before trusting the assertion?"), not trivia.
+8. **Recap** — 3 bullets max, plus one line stating the general abstract pattern the concrete flow instantiated.
 
 ## Flow visualization rules
 
@@ -41,5 +42,5 @@ Adapt to the topic; omit sections that don't apply rather than padding.
 
 - All input responds <100ms; movement uses CSS transitions of 150–300ms.
 - Keyboard: arrow keys step the flow; controls reachable by tab.
-- Prediction prompts ("place your bets") before key reveals where natural — a two-button choice, then reveal.
+- Prediction prompts ("place your bets") — at least one per page at the flow's pivotal step, at most ~3: a two-button choice, then reveal.
 - Everything works with a trackpad; nothing requires precise dragging.

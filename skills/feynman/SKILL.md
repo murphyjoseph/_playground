@@ -29,11 +29,13 @@ Two reference files carry the craft. Read BOTH before writing anything — the q
    - One self-contained `.html`: inline CSS, vanilla JS, inline SVG. No CDN, no build, no external requests; must work from `file://`.
    - Centerpiece: a step-through SVG flow — labeled actor boxes in stable positions, a visible token traveling labeled arrows, prev/next + arrow-key controls, per-step narration in a fixed spot.
    - Dictionary: dotted-underline jargon with hover tooltips plus a glossary panel. Every glossed term in the prose appears in the glossary.
+   - Active learning: at least one prediction bet at the flow's pivotal step, a bet before each what-if runs, and a Check-yourself section (2–4 think-then-reveal recall questions) before the recap. A page with no bet and no recall check is below the bar.
    - Interactivity must answer a "what if" — no decorative controls, no decorative imagery.
    - Save to `~/Sites/feynman/<topic-slug>.html`, append an entry (title, one-line hook, date) to `~/Sites/feynman/index.html` (create it on first run), then `open` the page.
 
 ## Judgment calls
 
 - When unsure between tiers, err toward the smaller response and offer more — an unwanted 500-line page is worse than a follow-up question.
+- Stage by prior knowledge, not just topic shape (rules in explanation-craft.md): topics with a frontend analog he owns get a non-blocking predict-first prompt before the explanation; true-novice topics get the worked flow first.
 - Depth follows the question, not the topic: "what's SAML?" gets the standard flow; "why did our SAML clock-skew bug happen?" gets a page focused on timestamps and validation, not a generic tour.
 - The user is a senior engineer: never explain servers, HTTP, or JSON — do explain everything specific to the domain being taught.

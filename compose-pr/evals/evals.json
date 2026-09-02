@@ -1,0 +1,81 @@
+{
+  "skill_name": "compose-pr",
+  "evals": [
+    {
+      "id": 0,
+      "name": "trivial-one-liner",
+      "prompt": "Write the PR description for the current branch in the repo at <fixture>.",
+      "expected_output": "Rung 1: an imperative conventional-commit title ≤72 chars plus at most one why-clause as the body. No section headers, no test-evidence ceremony, no inspector-general suggestion, no split talk.",
+      "files": ["fixtures/trivial-one-liner"],
+      "assertions": [
+        "Body is one sentence or empty — contains no markdown section headers (## Purpose, ## Risk, etc.)",
+        "Title is imperative, conventional-commit typed, and ≤72 characters",
+        "Does not fabricate or demand test evidence for the typo-level change",
+        "Does not suggest running the inspector-general review"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "risky-small-diff",
+      "prompt": "Compose the PR for the current branch in the repo at <fixture>.",
+      "expected_output": "A ~15-line change touching an auth/session path composes at rung 4 despite its size: BLUF risk line first, Tier 1 named, rollback note present, review guide pointing at the sensitive hunk. Risk outranks size.",
+      "files": ["fixtures/risky-small-diff"],
+      "assertions": [
+        "Names Tier 1 (auth/session path) in a Risk section despite the diff being small",
+        "Purpose opens with a BLUF line stating what merging does and the blast radius",
+        "Includes a rollback note",
+        "Does not pad sections that have no real content (no manufactured Try it / Screenshots)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "oversized-mixed-concerns",
+      "prompt": "Compose the PR for the current branch in the repo at <fixture>.",
+      "expected_output": "A >400 changed-line diff interleaving a refactor with a behavior change triggers a stacked-PR split plan (branch names, contents, order) BEFORE any body is composed, and no branch surgery happens without approval.",
+      "files": ["fixtures/oversized-mixed-concerns"],
+      "assertions": [
+        "Proposes a split into stacked PRs before composing a full body",
+        "Split plan separates the refactor from the behavior change",
+        "Performs no git branch/rebase/cherry-pick operations without user approval",
+        "If composing anyway is offered, the size is disclosed prominently rather than hidden"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "update-preserves-human-content",
+      "prompt": "Here's my PR, the description is weak — fix it: <pr-url>. (Fixture provides a gh shim; the existing PR body contains a human-ticked checklist and an embedded screenshot.)",
+      "expected_output": "Update mode: fetches the existing body, composes a proportional replacement that folds in the human checklist and screenshot, presents old → new for approval, and does NOT call `gh pr edit` before the user approves.",
+      "files": ["fixtures/update-preserves-human-content"],
+      "assertions": [
+        "Preserves the ticked checklist and the embedded screenshot in the proposed new body",
+        "Shows the proposed body (old → new or equivalent) and waits for approval",
+        "Does not invoke gh pr edit before explicit user approval",
+        "Anything dropped from the old body is called out explicitly"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "ui-change-screenshots",
+      "prompt": "Write the PR description for the current branch in the repo at <fixture>.",
+      "expected_output": "A small React component change gets a rung-2/3 body that includes a Screenshots section with a before/after placeholder and a note that an interactive change wants a recording — without faking or claiming captures.",
+      "files": ["fixtures/ui-change-screenshots"],
+      "assertions": [
+        "Includes a Screenshots section (or inline prompt) with an explicit placeholder for before/after captures",
+        "Does not claim screenshots exist or fabricate image links",
+        "Suggests a recording/demo for the interactive behavior change",
+        "Overall body stays proportional — no full rung-4 apparatus for a small Tier 3 UI tweak"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "no-commits-ahead",
+      "prompt": "Open a PR for the current branch in the repo at <fixture>.",
+      "expected_output": "The branch is even with its base: the skill says so and stops — no body, no gh calls, no invented diff.",
+      "files": ["fixtures/no-commits-ahead"],
+      "assertions": [
+        "States that the branch has no commits ahead of the base and stops",
+        "Does not compose a PR body or call gh pr create"
+      ]
+    }
+  ]
+}

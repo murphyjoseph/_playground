@@ -1,6 +1,6 @@
 # Documentation craft — operationalized rules
 
-Operationalized from Ousterhout (*A Philosophy of Software Design*, ch. 12–16), Martin (*Clean Code* ch. 4), antirez ("Writing system software: code comments"), the TSDoc spec, JSDoc conventions, Google's TS/JS and Python style guides, PEP 257, Atwood ("Code Tells You How, Comments Tell You Why"), Diátaxis, and docs-as-code drift principles.
+Operationalized from Ousterhout (*A Philosophy of Software Design*, ch. 12–16), Martin (*Clean Code* ch. 4), antirez ("Writing system software: code comments"), the TSDoc spec, JSDoc conventions, Google's TS/JS and Python style guides, PEP 257, Atwood ("Code Tells You How, Comments Tell You Why"), Diátaxis, docs-as-code drift principles, the ASD-STE100 writing rules (sentence mechanics only), and the comment-consistency mining literature (Wen et al. 2019; arXiv:2409.10781 — inconsistent comments carry ~1.5x bug-introduction odds).
 
 > Temporary duplication note: `~/.claude/agents/references/documentation-craft.md` is loaded by the personal `doc-reviewer` and `readme-writer` subagents and overlaps with this file. At promotion into agent-native, all three graduate together sharing ONE bundled reference.
 
@@ -24,7 +24,8 @@ Do NOT require a comment when:
 - **Redundant** — restates the code (`// increment i` over `i++`). `[nit]`.
 - **Noise / banner / divider / position-marker** comments. `[nit]`.
 - **Journal / changelog / attribution** comments — git owns this. `[nit]`.
-- **Uninformative TODO/FIXME** — no context, no ticket. `[important]`.
+- **Uninformative TODO/FIXME** — no context, no ticket. `[important]`. House format: `// TODO(owner): context, LIN-123`.
+- **Implementation leaked into interface docs** — a doc comment on a public symbol that narrates internals instead of the caller contract. It breaks the abstraction (the reader is forced into the body anyway) and drifts on every refactor. `[important]`.
 
 antirez's shorthand for the good kinds: **design** comments (why this approach), **why** comments (why this line is the way it is), **teacher** comments (domain knowledge the reader can't infer), **guide/checklist** comments (orientation in unavoidable complexity). The bad kinds: **trivial** (restates code), **debt** (vague TODO), **backup** (commented-out code).
 
@@ -33,9 +34,9 @@ antirez's shorthand for the good kinds: **design** comments (why this approach),
 The gate every doc — comment, README, docs page, ADR — must pass before it's created or kept:
 
 - **Name the reader and the moment.** Who reads this, and when? No concrete reader-moment → don't create it; recommend deleting it if it exists.
-- **One fact, one home.** Information lives at exactly ONE level, the closest to code that can hold it: type signature > doc comment > colocated README > docs/ page. Never duplicate a fact across levels; link to the single source instead.
+- **One fact, one home.** Information lives at exactly ONE level, the closest to code that can hold it: type signature > doc comment > colocated README > docs/ page. Never duplicate a fact across levels; link to the single source instead. One exception: caller-safety warnings and contracts may repeat at the point of use — a footgun warning belongs wherever the caller reads. Volatile facts (defaults, values, behavior specifics) get one home, always.
 - **Drift test, per sentence:** "would this be wrong after a routine refactor?" Fast-changing facts fail (file lists, step counts, versions, directory trees, code snippets duplicating real code). Slow-changing facts pass (intent, invariants, contracts, WHY). Cut or generalize failures.
-- **Update trigger.** Every artifact needs a natural force keeping it current: a regeneration script, a CI check, or colocation with the code it describes. No trigger → the artifact may hold slow-changing content only.
+- **Update trigger.** Every artifact needs a natural force keeping it current: a regeneration script, a CI check, or colocation with the code it describes. No trigger → the artifact may hold slow-changing content only. The strongest trigger is an executable example — code that compiles or runs in CI (doctest-style) cannot silently rot; where the language lacks doctests, link a compiled example file instead of inlining a snippet.
 - **Deletion is a first-class fix.** An absent doc confuses no one; a stale one lies.
 - **Temporal language is a time bomb.** "Currently", "for now", "temporary", "new", "recently", "soon", "legacy", "the old way" guarantee future staleness — the sentence is wrong the moment the situation changes and nothing forces an update. Anchor them to a ticket, date, or version, or cut them.
 - **Staleness propagates.** When a fact changes (a default, a config key, a signature), every other home of that fact goes stale silently — hunt them down rather than trusting the diff's boundaries.
@@ -49,6 +50,8 @@ The gate every doc — comment, README, docs page, ADR — must pass before it's
 - `@returns` when the return is non-void and not obvious from the name. `@throws` when the function throws an error the caller is expected to catch. `@deprecated` must include the migration path. `@example` for non-trivial public API.
 - **Types are documentation — never restate them.** A doc line that repeats the signature's types is drift waiting to happen.
 - Inline comments are WHY-only. Before writing one, try to make the code say it: rename, extract a function, name a constant. The comment is the fallback, and it states the constraint, not the code.
+- Red-flag test for every comment (Ousterhout): could a stranger write this comment just by looking at the adjacent code? If yes, delete it.
+- A comment sits at a DIFFERENT level of abstraction than its code: more precise (units, null-handling, boundary inclusivity) or higher-level intuition. Same level in different words is restatement.
 - When repairing existing docs, prefer **delete > shorten > rewrite**, in that order.
 - Tag/signature mismatches are `[important]`; missing optional richness (no `@example`) is at most a `[nit]`.
 
@@ -75,6 +78,7 @@ The gate every doc — comment, README, docs page, ADR — must pass before it's
 - A docs/ page must justify not being a README section or a doc comment (the one-fact-one-home ladder). Most can't.
 - Diátaxis lens for what a page is *for*: tutorial (learning), how-to (task), reference (lookup), explanation (understanding). A page mixing all four is a page nobody can maintain.
 - ADRs record decisions — slow-changing by nature, so they age well. But an ADR that describes current file layout or API shape has smuggled in fast-changing facts; cut them.
+- Write ADRs only for load-bearing decisions. Trivia ADRs ("Tailwind over Bootstrap") bury the ones that matter and erode trust in the log.
 
 ## Models to emulate
 
@@ -82,6 +86,17 @@ The gate every doc — comment, README, docs page, ADR — must pass before it's
 - **SQLite and Redis source comments** — design/why/teacher comments that carry knowledge the code can't.
 - **React docs** — explanation prose that teaches the model, not the API surface.
 
-## House voice
+## House voice and prose rules
 
 Direct, concise, no buzzwords (`seamless`, `robust`, `leverage`, `it's worth noting`). No em dashes. Prefer concrete nouns and active voice. Cut filler openers.
+
+Sentence mechanics, adapted from ASD-STE100 (Simplified Technical English) — the writing-rules subset only, not its controlled dictionary:
+
+- Keep sentences under ~20 words. Split rather than subordinate.
+- One idea per sentence; in procedures, one instruction per sentence.
+- Active voice with a named actor ("the service retries", not "retries are performed").
+- Simple verb forms; avoid -ing constructions where a simple form works.
+- One term, one meaning: call the same thing by the same name every time — never vary words for style. Canonical terms come from the domain glossary where one exists.
+- Constraint first: in a comment or warning, lead with the footgun, then the explanation.
+
+These rules govern sentence mechanics; explanation-style docs (ADRs, teacher comments) may flex them for nuance, never for filler.

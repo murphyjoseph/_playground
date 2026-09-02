@@ -29,6 +29,7 @@ Handoff spec for skill-creator. The craft rules live in `references/` and are fi
 - No page for tier-0 topics; never ask "want a page?" for tier-2 topics — just build.
 - Page is one file, no CDN, no build, no external requests.
 - Every control on the page must answer a "what if"; no decorative interactivity or imagery.
+- Every page has at least one prediction bet and a Check-yourself recall section (think-then-reveal) before the recap; recap closes with the general abstract pattern.
 
 ## Eval guidance (for skill-creator's harness)
 
