@@ -1,0 +1,41 @@
+{
+  "env": "staging",
+  "window": {"start": "2026-09-16T18:00:00Z", "end": "2026-09-16T19:00:00Z"},
+  "now_local": "2026-09-16 14:20 CDT",
+  "digest_due": false,
+  "state_summary": {},
+  "channel_echoes": [
+    {"channel": "#api-notifications", "alert_name": "app-api-external - Error Rate Warning", "service": "app-api-external", "status": "open", "ts": "2026-09-16T18:10:00Z", "permalink": "https://welltheory-workspace.slack.com/archives/C07CRE52KC4/p1"},
+    {"channel": "#sentry-notifications", "alert_name": "API Error: Session cannot be removed", "service": "api-welltheory-com", "status": "open", "ts": "2026-09-16T18:07:00Z", "permalink": "https://welltheory-workspace.slack.com/archives/C063XG8AQ5A/p2"},
+    {"channel": "#workflows-alerts", "alert_name": "temporal-step-paused", "service": "temporal-worker-pool", "status": "closed", "ts": "2026-09-16T17:20:00Z", "permalink": "https://welltheory-workspace.slack.com/archives/C0B0V9CBP6H/p3"}
+  ],
+  "scanners": {
+    "gcp": {
+      "source": "gcp", "source_status": {"cloud_logging": "ok", "bigquery": "ok", "remediation": null},
+      "revision_map": [
+        {"target": "app-api-external", "active_revisions": ["app-api-external-00212-abc"], "latest_ready": "app-api-external-00212-abc", "staged_not_promoted": false, "promoted_at": "2026-09-16T18:02:00Z"},
+        {"target": "app-events", "active_revisions": ["app-events-00190-xyz"], "latest_ready": "app-events-00190-xyz", "staged_not_promoted": false, "promoted_at": "2026-09-16T18:02:00Z"},
+        {"target": "temporal-worker-pool", "active_revisions": ["temporal-worker-pool-00088-q"], "latest_ready": "temporal-worker-pool-00089-r", "staged_not_promoted": true, "promoted_at": "2026-09-15T20:00:00Z"}
+      ],
+      "signals": [
+        {"source": "cloud_logging", "kind": "error_group", "signature": "Session cannot be removed", "service_or_surface": "app-api-external", "revision": "app-api-external-00212-abc", "inactive_revision": false, "novel": true, "first_seen": "2026-09-16T18:05:10Z", "last_seen": "2026-09-16T18:58:40Z", "count_in_window": 41, "users_affected": null, "route_or_workflow": "DELETE /care-hub/sessions/*", "sample_trace_ids": ["a1b2", "c3d4"], "link": "https://console.cloud.google.com/logs/query;q=1", "raw_excerpt": "BadRequestException: Session cannot be removed (sessions.remove) status=400", "hint": "strong"},
+        {"source": "cloud_logging", "kind": "error_group", "signature": "read ECONNRESET upstream healthie", "service_or_surface": "app-api-external", "revision": "app-api-external-00211-old", "inactive_revision": true, "novel": false, "first_seen": "2026-09-16T18:01:00Z", "last_seen": "2026-09-16T18:03:00Z", "count_in_window": 30, "users_affected": null, "route_or_workflow": "POST /graphql", "sample_trace_ids": [], "link": "https://console.cloud.google.com/logs/query;q=2", "raw_excerpt": "Error: read ECONNRESET", "hint": "weak"},
+        {"source": "cloud_logging", "kind": "error_group", "signature": "Eligibility check failed for member", "service_or_surface": "app-events", "revision": "app-events-00190-xyz", "inactive_revision": false, "novel": true, "first_seen": "2026-09-16T18:30:00Z", "last_seen": "2026-09-16T18:55:00Z", "count_in_window": 6, "users_affected": null, "route_or_workflow": "eligibility.check", "sample_trace_ids": ["e5f6"], "link": "https://console.cloud.google.com/logs/query;q=3", "raw_excerpt": "Eligibility check failed for member jane.doe@example.com DOB 1984-03-02 group=ACME-221", "hint": "weak"}
+      ],
+      "below_threshold": [{"signature": "Healthie timeout after 5000ms", "service_or_surface": "app-api-internal", "count_in_window": 2}],
+      "notes": []
+    },
+    "sentry": {
+      "source": "sentry", "source_status": {"sentry": "ok", "remediation": null},
+      "signals": [
+        {"source": "sentry", "kind": "issue_new", "signature": "BadRequestException: Session cannot be removed", "issue_short_id": "API-WELLTHEORY-COM-216", "project": "api-welltheory-com", "service_or_surface": "app-api-external", "culprit": "remove(api.controllers.care-hub.sessions:index)", "first_seen": "2026-09-16T18:05:12Z", "last_seen": "2026-09-16T18:58:41Z", "count_in_window": 41, "count_total": 41, "users_affected": 6, "release_or_revision": "3f2c1a9", "environment": "staging", "link": "https://welltheory.sentry.io/issues/7725104109/", "replay_link": null, "raw_excerpt": "Session cannot be removed", "hint": "strong", "note": null},
+        {"source": "sentry", "kind": "issue_high_volume", "signature": "Member is not eligible; Reached maximum number of attempts.; Group ID is not an eligible Group ID.", "issue_short_id": "API-WELLTHEORY-COM-21C", "project": "api-welltheory-com", "service_or_surface": "app-api-external", "culprit": "eligibility.check", "first_seen": "2026-09-15T15:36:00Z", "last_seen": "2026-09-16T18:50:00Z", "count_in_window": 12, "count_total": 140, "users_affected": 9, "release_or_revision": "3f2c1a9", "environment": "staging", "link": "https://welltheory.sentry.io/issues/7733739223/", "replay_link": null, "raw_excerpt": "Member is not eligible", "hint": "weak", "note": null}
+      ],
+      "skipped": [], "notes": []
+    },
+    "posthog": {
+      "source": "posthog", "source_status": {"posthog": "unavailable", "error_tracking": "unknown", "remediation": "config.json posthog_project_id for staging is unset"},
+      "signals": [], "notes": ["preflight failed"]
+    }
+  }
+}

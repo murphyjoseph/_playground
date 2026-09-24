@@ -1,0 +1,37 @@
+{
+  "env": "staging",
+  "window": {"start": "2026-09-16T18:00:00Z", "end": "2026-09-16T19:00:00Z"},
+  "now_local": "2026-09-16 14:20 CDT",
+  "digest_due": false,
+  "state_summary": {"9f3c1e": {"status": "open", "severity": "SEV3", "passes_seen": 4, "first_seen": "2026-09-15T14:00:00Z", "problem_key": "staging:bigquery:mirror_stale User", "last_slack_ts": null}},
+  "channel_echoes": [
+    {"channel": "#api-notifications", "alert_name": "cloud-armor-deny-warning", "service": "lb-api", "status": "closed", "ts": "2026-09-16T18:12:00Z", "permalink": "https://welltheory-workspace.slack.com/archives/C07CRE52KC4/p9"},
+    {"channel": "#typeform-alerts", "alert_name": "typeform-request-failures-warning", "service": "app-webhooks", "status": "closed", "ts": "2026-09-16T17:40:00Z", "permalink": "https://welltheory-workspace.slack.com/archives/C0BP7RGF3B4/p8"}
+  ],
+  "scanners": {
+    "gcp": {
+      "source": "gcp", "source_status": {"cloud_logging": "ok", "bigquery": "ok", "remediation": null},
+      "revision_map": [
+        {"target": "app-api-external", "active_revisions": ["app-api-external-00212-abc"], "latest_ready": "app-api-external-00213-new", "staged_not_promoted": true, "promoted_at": "2026-09-16T15:02:00Z"},
+        {"target": "temporal-worker-pool", "active_revisions": ["temporal-worker-pool-00088-q"], "latest_ready": "temporal-worker-pool-00088-q", "staged_not_promoted": false, "promoted_at": "2026-09-15T20:00:00Z"}
+      ],
+      "signals": [
+        {"source": "cloud_logging", "kind": "error_group", "signature": "Cannot find module ./dist/server", "service_or_surface": "app-api-external", "revision": "app-api-external-00213-new", "inactive_revision": true, "novel": true, "first_seen": "2026-09-16T18:40:00Z", "last_seen": "2026-09-16T18:41:00Z", "count_in_window": 8, "users_affected": null, "route_or_workflow": null, "sample_trace_ids": [], "link": "https://console.cloud.google.com/logs/query;q=4", "raw_excerpt": "Error: Cannot find module", "hint": "weak"}
+      ],
+      "below_threshold": [{"signature": "Healthie timeout after 5000ms", "service_or_surface": "app-api-internal", "count_in_window": 2}],
+      "notes": []
+    },
+    "sentry": {
+      "source": "sentry", "source_status": {"sentry": "ok", "remediation": null},
+      "signals": [
+        {"source": "sentry", "kind": "issue_high_volume", "signature": "Invalid/Missing Subscriber/Insured ID; Reached maximum number of attempts.", "issue_short_id": "API-WELLTHEORY-COM-21A", "project": "api-welltheory-com", "service_or_surface": "app-api-external", "culprit": "eligibility.check", "first_seen": "2026-09-13T19:26:00Z", "last_seen": "2026-09-16T18:50:00Z", "count_in_window": 15, "count_total": 410, "users_affected": 11, "release_or_revision": "3f2c1a9", "environment": "staging", "link": "https://welltheory.sentry.io/issues/7730113277/", "replay_link": null, "raw_excerpt": "Invalid/Missing Subscriber/Insured ID", "hint": "weak", "note": "prior-week hourly average 7"},
+        {"source": "sentry", "kind": "issue_new", "signature": "Failed to load image: /assets/logo-*.svg", "issue_short_id": "APP-WELLTHEORY-COM-VA", "project": "app-welltheory-com", "service_or_surface": "Member web app", "culprit": "?(assets/index-Z4BDbQbZ)", "first_seen": "2026-09-16T18:20:00Z", "last_seen": "2026-09-16T18:21:00Z", "count_in_window": 3, "count_total": 3, "users_affected": 1, "release_or_revision": "3f2c1a9", "environment": "staging", "link": "https://welltheory.sentry.io/issues/7722999980/", "replay_link": null, "raw_excerpt": "Failed to load image", "hint": "weak", "note": null}
+      ],
+      "skipped": [], "notes": []
+    },
+    "posthog": {
+      "source": "posthog", "source_status": {"posthog": "ok", "error_tracking": "disabled", "remediation": null},
+      "signals": [], "notes": ["error tracking not enabled"]
+    }
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "skill_name": "bugdar",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "/bugdar --dry-run",
+      "expected_output": "Prints the env/window line, then a preflight checklist table. With gcloud expired, Sentry unauthenticated, and PostHog configured (481421), it prints the exact remediation lines (gcloud auth login; /mcp Sentry; set posthog_project_id) and STOPS. No scanner subagents launched, no judge, nothing sent to Slack, state.json not written.",
+      "files": [],
+      "assertions": [
+        "Prints the env/window header line naming staging before any checks",
+        "Prints a preflight checklist table with rows for gcloud, BigQuery, Sentry, PostHog, Slack, Linear",
+        "Marks gcloud as failed and prints the remediation containing 'gcloud auth login'",
+        "PostHog row is backed by a real projects-get call: \u2713 when environments.staging.posthog_project_id (481421) is listed, \u2717 with a remediation naming config.json when the id is null or absent",
+        "Stops the pass after preflight: no scanner or judge subagent launched (actions.json shows no Agent launches)",
+        "No slack_send_message, no Linear write, and no files created under ~/Sites/bugdar",
+        "Every \u2713 or \u2717 in the preflight table is backed by a logged tool call in actions.json (gcloud/bq via Bash, PostHog projects-get, Slack read, Linear list_teams)"
+      ]
+    },
+    {
+      "id": 1,
+      "prompt": "/bugdar --dry-run --partial --window 2h",
+      "expected_output": "Preflight table shows the failed sources but continues in degraded mode. Reads the five alert channels for the last 2h into channel_echoes, launches only the healthy scanners (possibly none), launches bugdar-judge with the bundle (degraded: true), and prints either the would-be Slack posts or the single line 'bugdar: nothing to flag'. No slack_send_message call, no Linear write, no state mutation.",
+      "files": [],
+      "assertions": [
+        "Preflight table is printed and the pass continues, labeled degraded",
+        "Reads the five alert channels with slack_read_channel bounded to roughly the last 2 hours (actions.json shows reads of C063XG8AQ5A, C07CRE52KC4, C0B0V9CBP6H, C0BP7RGF3B4, C0BUS564M5L)",
+        "Unavailable sources appear as source_status unavailable in the bundle; no scanner signals are fabricated",
+        "Launches bugdar-judge with the bundle, or states explicitly that subagents cannot be launched from this context",
+        "Ends with one of: would-be Slack post text, the exact line starting 'bugdar: nothing to flag', or the exact stop message 'bugdar subagents not registered in this session; restart Claude Code and rerun' when the Agent tool reported the bugdar agents as not found (and in that case no nothing-to-flag line is printed)",
+        "No slack_send_message, no Linear write, and no files created under ~/Sites/bugdar"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "/bugdar replies --dry-run",
+      "expected_output": "Loads state (creating none in dry-run), finds no open findings with a slack_ts, and reports that there are no open findings to check. Does not read random Slack threads, does not create tickets, does not launch scanners.",
+      "files": [],
+      "assertions": [
+        "Reports that there are no open findings to check",
+        "Does not call slack_read_thread on any thread (no open findings means nothing to read)",
+        "No scanner or judge subagent launched, no Linear write, no slack_send_message",
+        "Does not create ~/Sites/bugdar or state.json in dry-run"
+      ]
+    }
+  ]
+}

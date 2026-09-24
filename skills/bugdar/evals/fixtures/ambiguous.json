@@ -1,0 +1,38 @@
+{
+  "env": "staging",
+  "window": {"start": "2026-09-16T18:00:00Z", "end": "2026-09-16T19:00:00Z"},
+  "now_local": "2026-09-16 14:20 CDT",
+  "digest_due": true,
+  "state_summary": {},
+  "channel_echoes": [],
+  "scanners": {
+    "gcp": {
+      "source": "gcp", "source_status": {"cloud_logging": "ok", "bigquery": "ok", "remediation": null},
+      "revision_map": [
+        {"target": "app-api-external", "active_revisions": ["app-api-external-00212-abc"], "latest_ready": "app-api-external-00212-abc", "staged_not_promoted": false, "promoted_at": "2026-09-15T15:02:00Z"},
+        {"target": "app-jobs", "active_revisions": ["app-jobs-00150-j"], "latest_ready": "app-jobs-00150-j", "staged_not_promoted": false, "promoted_at": "2026-09-15T15:02:00Z"},
+        {"target": "temporal-worker-pool", "active_revisions": ["temporal-worker-pool-00088-q"], "latest_ready": "temporal-worker-pool-00088-q", "staged_not_promoted": false, "promoted_at": "2026-09-15T20:00:00Z"}
+      ],
+      "signals": [
+        {"source": "bigquery", "kind": "mirror_stale", "signature": "postgres_node_direct.User updatedAt lag 3.2h", "service_or_surface": "BigQuery mirror", "revision": null, "inactive_revision": false, "novel": true, "first_seen": "2026-09-16T15:48:00Z", "last_seen": "2026-09-16T19:00:00Z", "count_in_window": 1, "users_affected": null, "route_or_workflow": null, "sample_trace_ids": [], "link": null, "raw_excerpt": "MAX(updatedAt)=2026-09-16T15:48:00Z", "hint": "weak"},
+        {"source": "cloud_logging", "kind": "scheduler_failed", "signature": "Cloud Scheduler job production-process-tasks failed", "service_or_surface": "app-jobs", "revision": "app-jobs-00150-j", "inactive_revision": false, "novel": false, "first_seen": "2026-09-16T18:30:00Z", "last_seen": "2026-09-16T18:30:00Z", "count_in_window": 1, "users_affected": null, "route_or_workflow": "production-process-tasks", "sample_trace_ids": [], "link": "https://console.cloud.google.com/logs/query;q=5", "raw_excerpt": "job failed: HTTP 504 from target", "hint": "weak"}
+      ],
+      "below_threshold": [{"signature": "temporal.step.paused draftChartingNote.provideChartingNote", "service_or_surface": "temporal-worker-pool", "count_in_window": 1}],
+      "notes": ["scheduler job failed once; prior run succeeded"]
+    },
+    "sentry": {
+      "source": "sentry", "source_status": {"sentry": "ok", "remediation": null},
+      "signals": [
+        {"source": "sentry", "kind": "issue_new", "signature": "TypeError: Cannot destructure property 'start' of 'e1' as it is undefined.", "issue_short_id": "APP-WELLTHEORY-COM-V9", "project": "app-welltheory-com", "service_or_surface": "Care Hub", "culprit": "ScheduleCalendar (assets/index-Z4BDbQbZ)", "first_seen": "2026-09-16T18:12:00Z", "last_seen": "2026-09-16T18:49:00Z", "count_in_window": 4, "count_total": 4, "users_affected": 2, "release_or_revision": "9e8d7c6", "environment": "staging", "link": "https://welltheory.sentry.io/issues/7721623036/", "replay_link": null, "raw_excerpt": "at ScheduleCalendar /care-hub/schedule", "hint": "weak", "note": "release 9e8d7c6 promoted 2026-09-15"}
+      ],
+      "skipped": [], "notes": []
+    },
+    "posthog": {
+      "source": "posthog", "source_status": {"posthog": "ok", "error_tracking": "disabled", "remediation": null},
+      "signals": [
+        {"source": "posthog", "kind": "ui_friction", "signature": "$rageclick on /care-hub/schedule", "service_or_surface": "/care-hub/schedule", "first_seen": "2026-09-16T18:15:00Z", "last_seen": "2026-09-16T18:50:00Z", "count_in_window": 14, "baseline_median": 1, "users_affected": 6, "release_or_revision": null, "link": "https://us.posthog.com/project/1/replay", "replay_ids": ["s1", "s2"], "raw_excerpt": "6 sessions rage-clicked .rbc-time-slot", "hint": "weak", "note": null}
+      ],
+      "notes": ["error tracking not enabled"]
+    }
+  }
+}

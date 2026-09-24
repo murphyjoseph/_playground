@@ -1,0 +1,83 @@
+{
+  "env": "production",
+  "environments": {
+    "staging": {
+      "gcp_project": "staging-406517",
+      "region": "us-central1",
+      "sentry_environment": "staging",
+      "posthog_project_id": 481421,
+      "worker_pools": [
+        "temporal-worker-pool"
+      ]
+    },
+    "production": {
+      "gcp_project": "main-372313",
+      "region": "us-central1",
+      "sentry_environment": "production",
+      "posthog_project_id": 481832,
+      "worker_pools": [
+        "temporal-worker-pool-interactive",
+        "temporal-worker-pool-events",
+        "temporal-worker-pool-webhooks",
+        "temporal-worker-pool-background"
+      ]
+    }
+  },
+  "services": [
+    "app-api-external",
+    "app-api-internal",
+    "app-events",
+    "app-webhooks",
+    "app-jobs",
+    "auth0-log-stream"
+  ],
+  "sentry": {
+    "org": "welltheory",
+    "projects": [
+      "api-welltheory-com",
+      "app-welltheory-com"
+    ]
+  },
+  "slack": {
+    "output_channel": "C0C38PZN072",
+    "mention_user": "U0AN380HXFB",
+    "alert_channels": {
+      "sentry": "C063XG8AQ5A",
+      "api": "C07CRE52KC4",
+      "workflows": "C0B0V9CBP6H",
+      "typeform": "C0BP7RGF3B4",
+      "proxy": "C0BUS564M5L"
+    }
+  },
+  "linear": {
+    "team": "Product",
+    "project": "Support",
+    "project_id": "70f6992d-afe3-4d91-987a-c03267ca4828",
+    "assignee": "me"
+  },
+  "schedule": {
+    "default_window_minutes": 60,
+    "window_overlap_minutes": 10,
+    "max_window_hours": 72,
+    "digest_hour_local": 9,
+    "timezone": "America/Chicago"
+  },
+  "state_dir": "~/Sites/bugdar",
+  "playbooks": {
+    "cloud_run_forensics": "~/Sites/.claude/skills/cloud-run-forensics/SKILL.md",
+    "data_deepdive": "~/Sites/.claude/skills/data-deepdive/SKILL.md",
+    "auth_forensics": "~/Sites/.claude/skills/auth-forensics/SKILL.md"
+  },
+  "thresholds": {
+    "logging_identical_errors": 5,
+    "logging_5xx_per_route": 3,
+    "sentry_events": 10,
+    "sentry_users": 3,
+    "posthog_exception_events": 10,
+    "posthog_exception_users": 3,
+    "rageclick_sessions": 5,
+    "mirror_stale_hours": 2,
+    "bq_scan_abort_gb": 5,
+    "step_paused_repeats_24h": 3
+  }
+}

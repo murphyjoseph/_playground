@@ -1,0 +1,10 @@
+# Bugdar judge eval cases
+
+Run each fixture through `bugdar-judge` (paste the JSON as the bundle). Re-run after any edit to the references.
+
+| Fixture | Tests | Expected |
+|---|---|---|
+| `fixtures/seeded.json` | recall + fusion + PHI | Two `post_now` findings: SEV1 `confirmed` "PHI in app-events error text" (excerpt scrubbed everywhere), and ONE SEV2 (`confirmed`, 2 sources + release 3f2c1a9 promoted 18:02) for Care Hub session removal (a third, held SEV3 for the underlying eligibility failure is acceptable) with the Sentry issue, the log group, and both open echoes attached as evidence/also_fired. Suppressed: 1 inactive-revision group, 1 business exception (12 events, below 3× baseline), 1 closed echo. Posts under 1,000 chars, mention `<@U0AN380HXFB>`, no email or DOB anywhere. PostHog unavailable noted in `source_status`, not used to lower confidence. |
+| (Call line, all fixtures) | trajectory + fix + call | Seeded: PHI → `ACT NOW`; Care Hub → `ACT NOW · steady · fix: rollback 00212/3f2c1a9` (last error 18:58Z, 2 min before window end). Ambiguous: schedule TypeError → `INVESTIGATE` or `SIT TIGHT` with flip condition, never ACT NOW; mirror lag → `INVESTIGATE · cause unclear`. Every SIT TIGHT ends with its flip condition; SIT TIGHT posts carry no @mention. |
+| `fixtures/clean.json` | precision | `nothing_to_flag: true`. No finding above `log_only`. Suppressed counts for the inactive staged revision error, the 15-event business exception (~2× baseline), the svg asset noise, and the two closed echoes. No digest. The unrelated open SEV3 in state is left alone. |
+| `fixtures/ambiguous.json` | calibration + persistence | No `post_now`. Care Hub schedule: Sentry TypeError (4 events, 2 users) and rage clicks on `/care-hub/schedule` fused into ONE problem, SEV3 or SEV2 (err-high on a core Provider path is acceptable), confidence `possible` or `likely`, action `hold_pending` (first pass, never `post_now`). Mirror stale → SEV3 `hold_pending`. Scheduler one-off failure → SEV3 `hold_pending` or SEV4 `log_only`; never SEV2. `digest_due` is true but nothing is held yet, so `digest` is null. |
