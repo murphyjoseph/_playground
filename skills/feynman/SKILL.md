@@ -1,5 +1,5 @@
 ---
-name: feynman
+name: playground-feynman
 description: Teach the user a topic in plain language, escalating to a self-contained interactive HTML explainer (animated data-flow diagram, hover dictionary, what-if toggles) when the topic has a flow, system, or process worth visualizing. Use whenever the user runs /feynman, asks "what's X" / "how does X work" / "explain X" about a concept, protocol, system, or process, or wants to learn or understand something — especially anything where data moves between parts (auth flows, DNS, git internals, payment processing, networking) — even if they never ask for a visual, a diagram, or a webpage.
 ---
 
