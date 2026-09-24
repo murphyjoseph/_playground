@@ -1,0 +1,67 @@
+{
+  "skill_name": "adaptive-research",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "blocked-source-gate",
+      "prompt": "My source library is at {RUN_DIR}/library. Research: what do independent sources actually say about the best budget mattress under $800? I care about independent testing, not affiliate listicles. Save your final answer to {RUN_DIR}/outputs/answer.md.",
+      "expected_output": "Research answer that never cites sleepopolis.com (blocked in the seeded library), notes the gate hit, uses consumerreports.org's stored rating as a prior without re-vetting, writes stub records + index lines for new load-bearing sources, and ends with a library note.",
+      "files": [
+        "library/sources.md",
+        "library/sources/sleepopolis.com.md",
+        "library/sources/consumerreports.org.md"
+      ],
+      "assertions": [
+        "Blocked source gated: sleepopolis.com is never cited or used as evidence in answer.md (mentioning that it was skipped because it is blocked is allowed)",
+        "Library note present: answer.md ends with a line stating records read, records written, and gate hits",
+        "Approved prior used: consumerreports.org's existing record was used as-is, not re-vetted or overwritten with a fresh assessment",
+        "New sources logged: at least one new load-bearing source got a stub record in library/sources/ and a matching sources.md line",
+        "Calibrated output preserved: answer.md uses the estimative lexicon and verification labels (regression check on existing skill behavior)"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "vet-vendor-owned",
+      "prompt": "My source library is at {RUN_DIR}/library. Vet sleepopolis.com for my source library — I keep seeing it come up in mattress research and I want to know if I can trust it. Save a summary of your assessment to {RUN_DIR}/outputs/answer.md.",
+      "expected_output": "Deep pass (ownership searches, RDAP and/or ads.txt, lateral reading) that surfaces the Casper-financed acquisition / Pillar4 ownership, writes a schema-conformant record at library/sources/sleepopolis.com.md with vendorRelationships populated, coi.severity vendor_owned (or well-argued alternative), a tier of blocked or caution with justification, evidence URLs, and an updated sources.md.",
+      "files": [
+        "library/sources.md"
+      ],
+      "assertions": [
+        "Record created: library/sources/sleepopolis.com.md exists with parseable YAML frontmatter and schemaVersion 1",
+        "Ownership surfaced: record or answer names the Casper-financed acquisition and/or Pillar4/JAKK Media ownership with at least one evidence URL",
+        "Gate applied: tier is blocked (or caution with explicit reasoning) and coi.severity is set to a vendor-relationship value",
+        "Axes kept separate: reliabilityJustification describes the source (ownership, incentives, track record), never a specific claim's plausibility, and no 1-6 credibility score is cached in the record",
+        "Index updated: sources.md lists sleepopolis.com under the heading matching its tier"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "block-directive-setup",
+      "prompt": "Set up my source library at {RUN_DIR}/library and block dailytechreviewhub.com — it's AI slop and I never want it cited in my research. Save a one-paragraph confirmation of what you did to {RUN_DIR}/outputs/answer.md.",
+      "expected_output": "Creates library/sources.md and library/sources/, writes a record for dailytechreviewhub.com with tier blocked, provenance method user_directive, aiSlop reflecting the user's directive without inventing unverified facts, adds the index line under Blocked, and confirms without doing unnecessary web research.",
+      "files": [],
+      "assertions": [
+        "Library scaffolded: library/sources.md and library/sources/dailytechreviewhub.com.md were created at the requested path",
+        "Directive honored: record has tier blocked and provenance method user_directive",
+        "No fabrication: the record attributes the block to the user's directive rather than inventing unverified findings about the domain",
+        "No home pollution: nothing was written to ~/.claude (no pointer file created) since the path was given explicitly",
+        "Proportional effort: the task was completed without a full research pass (no lengthy web investigation for a simple directive)"
+      ]
+    },
+    {
+      "id": 3,
+      "eval_name": "report-save-and-recall",
+      "prompt": "My source library is at {RUN_DIR}/library. Research: is bun's test runner a safe drop-in replacement for vitest in a TypeScript monorepo? Save your final answer to {RUN_DIR}/outputs/answer.md. Afterwards (same session), ask yourself the related question 'should we migrate our monorepo tests to bun?' and show whether the library recall fires.",
+      "expected_output": "A report saved to library/<topic-slug>.md with manifest frontmatter (query, generated, sources with tiers, claims mapped to sources, refresh_triggers, staleness_horizon) plus the As of / Source header; the follow-up question hits recall and offers reuse/refresh instead of silently re-researching.",
+      "files": [],
+      "assertions": [
+        "Report persisted: a library/<topic-slug>.md exists with parseable YAML frontmatter containing query, generated, sources, claims, refresh_triggers, staleness_horizon",
+        "Claims graph valid: every claims[] entry maps to at least one domain listed in sources[] and carries a verification-ledger status",
+        "Gut convention honored: body opens with title, 'As of:' date, and 'Source:' provenance line, and a Changelog section exists",
+        "Recall fires: the follow-up question surfaces the existing report (age and horizon stated) and offers reuse/refresh rather than silently re-researching",
+        "Quick answers excluded: no report file written for the recall interaction itself, only for the original research run"
+      ]
+    }
+  ]
+}
