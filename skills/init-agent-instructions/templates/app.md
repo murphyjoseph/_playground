@@ -2,25 +2,26 @@
 
 [One sentence — what this app is: framework + role + primary responsibility.]
 
-Change posture: `[locked | guarded | standard | open]` ([inputs — e.g. "member-facing, handles PHI" or "internal tool"])
+Change posture: `[locked | guarded | standard | open]` ([qualitative inputs — e.g. "user-facing, handles sensitive data" or "internal tool"; never consumer counts])
 
-> **App delta.** Inherits all root conventions from [`../../CLAUDE.md`](../../CLAUDE.md). This file documents only what differs or is additive for this app. Read the root guide first.
+> **App delta.** Inherits all root conventions from [`../../AGENTS.md`](../../AGENTS.md). This file documents only what differs or is additive for this app. Read the root guide first.
 
 <!-- Scale to the app: every workspace gets a delta because existence is mandatory (the file carries the
      posture metadata). Depth is not: only the metadata block is required; skip any section below that
      would restate root or pad a thin app. A simple app may be ~15 lines. -->
 
-<!-- REQUIRED above, in every workspace file: title · one-line purpose · a `Change posture:` line with
-     exactly one of the four words + parenthesized inputs (fold consumer counts / data sensitivity into
-     the inputs). Tooling and PR agents grep the exact phrase `Change posture:` — a golden in-repo example
-     never waives these. OPTIONAL below: keep a row only when non-default or load-bearing; delete the
-     rest — Path, "Status: SUPPORTED", and the repo-default runtime are noise. -->
+<!-- REQUIRED in every workspace file: title · one-line purpose (name the framework + role in it — no
+     separate Framework row) · a `Change posture:` line · then exactly the two bullets below (apps carry
+     no Blast radius row — an app's blast is its users). Tooling
+     and PR agents grep these exact phrases — a golden in-repo example never waives them. Extra factual
+     bullets (Port/Deploy for a backend app) may follow when load-bearing and verified — never invent a
+     new named row without adding it to the root legend. No Framework/Runtime/Published/version rows:
+     derivable, drift-prone, or noise. -->
 
-- **Framework / role:** `[e.g., Next.js 15 · frontend | Express 5 · backend]`
-- **Port:** `[PORT]` via `[ENV_VAR]` ← backend only
-- **Deploy:** `[e.g., Vercel | Fly.io | Cloud Run service names]`
-- **Status:** `[EXPERIMENTAL | DEPRECATED]` ← only if not SUPPORTED
-- **Runtime:** `[browser | node | edge | browser+node]` ← only if it differs from the repo default
+- **Status:** `[supported | experimental | deprecated | frozen]`
+- **[PHI | PII]:** `[yes | no]` ← only if the repo adopted the sensitive-data row
+- **Port:** `[PORT]` via `[ENV_VAR]` ← extra factual bullet, backend only
+- **Deploy:** `[service names / platform]` ← extra factual bullet, only when verified
 
 ---
 
@@ -137,7 +138,7 @@ src/
 - **Dev deps:**
   - `[package]` — [why]
 - **Consumes from packages:**
-  - `@repo/[pkg]` — [what it uses from there] → see `packages/[pkg]/CLAUDE.md`
+  - `@repo/[pkg]` — [what it uses from there] → see `packages/[pkg]/AGENTS.md`
 - **Forbidden deps:**
   - [package or category] — [reason, e.g., "use the ORM instead of raw drivers"]
 - **Integrates with:** ← remove if FE-only or BE-only
@@ -258,6 +259,8 @@ src/[domain]/
 ---
 
 ## 11) PR Checklist
+
+<!-- Generation: keep only checks tied to rules that actually made it into this guide or root — drop any checklist line whose rule was omitted (e.g. the logger line if no logger package exists). -->
 
 - [ ] [Most important app-specific check]
 - [ ] [Second most important check]

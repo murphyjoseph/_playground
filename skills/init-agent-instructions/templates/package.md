@@ -2,26 +2,25 @@
 
 [One sentence — what it does and why it exists as a package.]
 
-Change posture: `[locked | guarded | standard | open]` ([inputs — e.g. "6 consumers, published to npm" or "1 consumer, internal"])
+Change posture: `[locked | guarded | standard | open]` ([qualitative inputs — e.g. "published to npm" or "internal test adapter"; never consumer counts — they drift, scale lives in Blast radius])
 
-> **Package delta.** Inherits all root conventions from [`../../CLAUDE.md`](../../CLAUDE.md). This file documents only what is additive or specific to this package. Read the root guide — especially its Package Design Invariants — before editing this package.
+> **Package delta.** Inherits all root conventions from [`../../AGENTS.md`](../../AGENTS.md). This file documents only what is additive or specific to this package. Read the root guide — especially its Package Design Invariants — before editing this package.
 
 <!-- Scale to the package: every workspace gets a delta — including config and types packages — because
      existence is mandatory (the file carries the posture metadata). Depth is not: only the metadata block
      is required; skip any section below that would restate root or pad a thin package. A simple package
      may be ~15 lines. -->
 
-<!-- REQUIRED above, in every workspace file: title · one-line purpose · a `Change posture:` line with
-     exactly one of the four words + parenthesized inputs (fold consumer counts / data sensitivity into
-     the inputs). Tooling and PR agents grep the exact phrase `Change posture:` — a golden in-repo example
-     never waives these. OPTIONAL below: keep a row only when non-default or load-bearing; delete the
-     rest — Path, "Status: SUPPORTED", internal-only publishing, and the repo-default runtime are noise. -->
+<!-- REQUIRED in every workspace file: title · one-line purpose (state the package's kind — types-only,
+     adapter, config — in it; no separate Package-type/Runtime rows) · a `Change posture:` line · then
+     exactly the three bullets below. Tooling and PR agents grep these exact phrases — a golden in-repo
+     example never waives them. Extra factual bullets may follow when load-bearing and verified (e.g.
+     `- **Entry:** no barrel — deep-path imports via the exports map`, or `- **Published:** external (npm)`
+     when true) — never invent a new named row without adding it to the root legend. -->
 
-- **Package type:** `[utility | ui-components | api-contract | logger | config | types]` ← keep when it drives the dep-footprint invariants
-- **Runtime target:** `[browser | node | universal]` ← only if it differs from the repo default
-- **Published:** external (npm) ← only if externally published (changesets apply)
-- **Status:** `[EXPERIMENTAL | DEPRECATED]` ← only if not SUPPORTED
-- **Entry:** ← only if non-obvious (e.g. "no barrel — deep-path imports via the exports map")
+- **Blast radius:** `[repo-wide | several workspaces | one workspace (name) | build/CI only | leaf (no consumers)]` ← from the direct dep graph; no consumer counts (they drift)
+- **Status:** `[supported | experimental | deprecated | frozen]`
+- **[PHI | PII]:** `[yes | no]` ← only if the repo adopted the sensitive-data row
 
 ---
 
@@ -81,6 +80,8 @@ packages/[folder]/
 
 ## 4) Rules — Do / Don't
 
+<!-- Generation: the "Dependencies" subsection enforces root's Package Design Invariants — include it only if that policy was adopted in the plan doc's "Template policies to adopt". "Adding exports" and "Breaking changes" assume a single-barrel package: verify against the real exports map first — a package consumed via subpath exports (e.g. @scope/core/system) has a different rule; document the real one, not the template's. -->
+
 ### Adding exports
 
 - **MUST** export from `src/index.ts` — no exceptions
@@ -126,7 +127,7 @@ import { helper } from "@repo/[name]";
 **Finding all consumers before a breaking change:**
 
 ```bash
-rg "from '@repo/[package-name]'" -l   # all source — don't restrict extensions
+rg "from ['\"]@repo/[package-name][/'\"]" -l   # both quote styles + subpath imports; all source — don't restrict extensions
 ```
 
 ---
@@ -174,7 +175,7 @@ pnpm --filter @repo/[name] [script]     # [what it does — e.g., generate types
 4. Run `pnpm --filter @repo/[name] build` — verify it compiles
 5. Run `pnpm --filter @repo/[name] check-types` — verify types export correctly
 6. TSDoc the export — one-sentence summary, `@example` if usage is non-obvious (root's Comments & documentation rules)
-7. If it's a breaking change: find consumers (`rg "from '@repo/[name]'"`) and update them
+7. If it's a breaking change: find consumers (`rg "from ['\"]@repo/[name][/'\"]"`) and update them
 8. If externally published: run `pnpm changeset`
 
 **Target file tree (complete new export):**
@@ -224,6 +225,8 @@ import { [ExportA] } from '@repo/[package-name]'
 
 ## 10) PR Checklist
 
+<!-- Generation: keep only checks tied to rules that actually made it into this guide or root — drop lines whose rule was omitted (e.g. TSDoc if that policy wasn't adopted; changesets if not published). -->
+
 - [ ] All new exports go through `src/index.ts`
 - [ ] Types exported alongside values
 - [ ] No deps that violate the declared runtime target (`[runtime target]`)
@@ -249,7 +252,7 @@ rg "from ['\"][FORBIDDEN_PATTERN]['\"]" packages/[folder]/src \
 rg "from ['\"].*apps/" packages/[folder]/src || echo "OK: No upward imports"
 
 # Deep imports by consumers (should go through the barrel)
-rg "from '@repo/[package-name]/src/" || echo "OK: No deep imports by consumers"
+rg "from ['\"]@repo/[package-name]/src/" || echo "OK: No deep imports by consumers"
 
 # dist/ not tracked in git
 git ls-files packages/[folder]/dist | wc -l | xargs -I{} test {} -eq 0 \

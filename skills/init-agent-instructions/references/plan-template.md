@@ -34,6 +34,32 @@ The generated docs describe what IS, so each item needs a decision: codify as-is
 - [practice] · [evidence paths] · [recommendation]
   > decision: [document as-is | adopt new practice: …] ← mark before confirming
 
+### Template policies to adopt  (opinionated template defaults — proposals, not facts)
+The templates ship policies this repo may never have agreed to. Each is generated ONLY if its final mark
+is adopt. Pre-mark every row with a recommendation derived from evidence — the user confirms or flips, they
+don't author from scratch. If an existing guide already states a policy, that counts as prior adoption:
+pre-mark it `adopt: yes (already in force — [path])`; flipping it to no is an explicit drop that must
+appear in the Merge plan. For an existing repo, check what the code actually does first: codifying a rule
+the codebase widely violates creates a lying doc — cite the violations and route it to Practice review
+instead.
+- Package Design Invariants (dep-footprint table, peer-deps rule, minimal exports, no upward imports)
+  > adopt: [recommended: yes/no — evidence of current state] ← confirm or flip
+- Two-consumer rule (code graduates to `packages/` only at 2+ consumers)
+  > adopt: [recommended: yes/no — evidence] ← confirm or flip
+- TSDoc every exported symbol in `packages/` (Comments & documentation)
+  > adopt: [recommended: yes/no — evidence] ← confirm or flip
+- Error-handling MUSTs (no empty catch, typed error classes)
+  > adopt: [recommended: yes/no — lint rule? existing convention?] ← confirm or flip
+- Env validation at startup (Zod)
+  > adopt: [recommended: yes/no — cite the schema if one exists] ← confirm or flip
+- Integration tests use real instances (never mock DB/network/fs)
+  > adopt: [recommended: yes/no — evidence from the test setup] ← confirm or flip
+- Changesets for consumer-visible package changes
+  > adopt: [recommended: yes/no — does `.changeset/` exist?] ← confirm or flip
+- Sensitive-data metadata row (`PHI:`/`PII:` `yes|no` on every workspace guide)
+  > adopt: [recommended: yes if the repo handles regulated/sensitive user data — name the domain; no
+  > otherwise — a uniform `no` everywhere is noise] ← confirm or flip
+
 ### Inferred (correct me if wrong)
 | Field | Value | Source |
 | ----- | ----- | ------ |
@@ -57,6 +83,9 @@ The generated docs describe what IS, so each item needs a decision: codify as-is
 - Dead / stale: [path — evidence, e.g. "describes removed src/infra/; last touched 2024-06"]
 - Duplicates: [path → duplicate of [canonical]]
 - Preferred source per topic: [topic → path — this table becomes the docs map]
+- Write `docs/docs-map.md` from this inventory? Worth it when conflicts or stale docs exist; skip for
+  small, clean repos.
+  > write: yes / no
 
 ### Merge plan  (only if existing files were found)
 - Keep verbatim: [hand-written domain rules / decisions worth preserving — list them]
@@ -66,11 +95,12 @@ The generated docs describe what IS, so each item needs a decision: codify as-is
 
 ### Section accounting  (every template section lands somewhere: filled · merged · skipped-with-reason)
 - Root required — skipping any needs a reason here and your confirmation:
-  - Operating Rules (FLAGS.md rule + update-docs-in-same-PR rule): [in | skipped — reason]
+  - Operating Rules (COME-BACK-TO.md rule + update-docs-in-same-PR rule): [in | skipped — reason]
   - Metadata Legend with authority columns: [in | skipped — reason]
-  - Package Design Invariants (dep footprint, two-consumer rule, no upward imports): [in | skipped — reason]
-  - Comments & documentation: [in | skipped — reason]
   - Planning before building / docs & specs: [in | skipped — reason]
+- Policy-gated root sections (Package Design Invariants · Comments & documentation · Error handling ·
+  Testing MUSTs · env validation): in only if adopted under Template policies above — list the outcome
+  per section here.
 - Skipped elsewhere: [workspace · section — reason, e.g. "apps/api: Accessibility — backend"]
 - Filled fresh (no counterpart in the existing file): [sections — only when reconciling]
 

@@ -6,13 +6,13 @@ Change posture: `[locked | guarded | standard | open]` ([inputs — why this def
 
 > **Root guide.** Every workspace guide (apps, packages, and any other workspace dir) is a delta — it inherits everything here and only documents what differs. Never duplicate root rules in child guides.
 
-- **Monorepo type:** `[FE-only | BE-only | FE+BE]`
-- **Runtimes in use:** `[browser · node · edge]` ← list only what applies
-- **Language:** TypeScript `[VERSION]` — strict mode, no exceptions
-- **Package manager:** pnpm `[VERSION]`
-- **Node version:** `[VERSION]` (see `.nvmrc` / `.node-version`)
-- **Build orchestration:** `[ORCHESTRATOR — Nx · Turborepo · Lerna · Rush · none (workspaces only)]`
-- **Deploy target(s):** `[e.g., Vercel (web) · Fly.io (server) · npm (packages)]`
+- **Blast radius:** `repo-wide`
+- **Status:** `supported`
+- **[PHI | PII — the repo's sensitive-data label]:** `[yes | no]` ← only if adopted in the plan doc; repos with no sensitive-data domain omit this row everywhere
+
+<!-- No toolchain-version rows (pnpm/Node/TS): they are derivable from package.json
+     engines/packageManager and drift immediately. Name the package manager + orchestrator once in
+     prose (Monorepo Structure) instead. -->
 
 ---
 
@@ -22,12 +22,19 @@ Change posture: `[locked | guarded | standard | open]` ([inputs — why this def
 
 - Read the code before changing it; cite `file:line`. Never assume — verify in the actual files.
 - Match your latitude to the workspace's **change posture** (legend below): smallest sufficient diff in `guarded` code; opportunistic improvements only in `open` code.
-- Hit a contradiction — between a CLAUDE.md and the code, between two guides, or an ambiguity you'd otherwise paper over with a guess? Record it in `FLAGS.md` at the repo root, surface it in your reply, and proceed on the safer reading. Never silently assume.
-- If your change makes a statement in any CLAUDE.md false, update that file in the same PR. A doc that lies is worse than no doc.
+- Hit a contradiction — between a workspace guide (`AGENTS.md`) and the code, between two guides, or an ambiguity you'd otherwise paper over with a guess? Record it in `COME-BACK-TO.md` at the repo root, surface it in your reply, and proceed on the safer reading. Never silently assume.
+- If your change makes a statement in any workspace guide (`AGENTS.md`) false, update that file in the same PR. A doc that lies is worse than no doc.
 
 ## Metadata Legend
 
-Every workspace guide carries a `Change posture` value: the contract for how much latitude agents and automation (PR review bots, refactor agents) have there. Words, not numbers — `locked` is most restrictive, `open` is least. The derivation inputs appear in parentheses next to each value so it stays auditable.
+Every workspace guide opens with the same four metadata rows. Domain/subtree guides carry only `Status:` — the rest is inherited from their enclosing workspace guide. A file may add extra factual bullets beneath the four when load-bearing (e.g. a backend app's Port/Deploy); never invent a new named row without defining it here.
+
+| Row | Values | Meaning |
+| --- | --- | --- |
+| `Change posture:` | `locked` · `guarded` · `standard` · `open` | Latitude for agents/automation — derived from the rows below plus auth/security/API-contract judgment; inputs in parentheses so the value stays auditable, authority table next |
+| `Blast radius:` | `repo-wide` · `several workspaces` · `one workspace (name)` · `build/CI only` · `leaf (no consumers)` | Packages only (apps omit it — their blast is their users). What breaks if this breaks, from the direct dependency graph; no consumer counts (they drift) |
+| `Status:` | `supported` · `experimental` · `deprecated` · `frozen` | Lifecycle. Always present, even when `supported` — a missing row means "not yet audited", never "default" |
+| `[PHI \| PII]:` | `yes` · `no` | Only in repos with a sensitive-data domain (plan-doc adoption) — delete this legend row otherwise. NAMED for the repo's label (self-explanatory in leaf files). Whether sensitive user data flows through this code as its job; data-agnostic helpers and type-only packages are `no` |
 
 | Posture    | Typical for                                                                       | Agents may                                                                    | Agents must not                                                                    |
 | ---------- | --------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
@@ -36,7 +43,7 @@ Every workspace guide carries a `Change posture` value: the contract for how muc
 | `standard` | Normal production code                                                             | Normal changes; approve; merge when CI is green and the diff stays in-workspace | Merge diffs that leave the workspace                                                 |
 | `open`     | Prototypes, internal tooling, spikes                                               | Merge on green CI; refactor opportunistically                                  | —                                                                                    |
 
-When one diff spans workspaces with different postures, the most restrictive posture governs the whole diff.
+When one diff spans workspaces with different postures, the most restrictive posture governs the whole diff. Wherever the sensitive-data row is `yes`, automation never merges without human sign-off regardless of posture.
 
 ---
 
@@ -55,7 +62,7 @@ When one diff spans workspaces with different postures, the most restrictive pos
 │   └── [topic].md        # Architecture, API, deployment, etc.
 ├── [orchestrator config]   # nx.json / turbo.json / … — omit if none
 ├── pnpm-workspace.yaml
-└── CLAUDE.md             ← you are here
+└── AGENTS.md             ← you are here (CLAUDE.md → symlink to it)
 ```
 
 **Workspace reference:**
@@ -102,7 +109,7 @@ pnpm add [pkg] -w                       # Root dep (shared tooling only — rare
 
 ### Naming
 
-<!-- Generation: keep only rows the repo's linter does NOT already enforce; for enforced ones, name the tool in §8 instead. The usually-load-bearing rows are env vars and any file-naming scheme a linter can't see. -->
+<!-- Generation: OMIT this table by default. Keep only rows that are (a) not linter-enforced (for enforced ones, name the tool in §8 instead) AND (b) verified against real files — sample the repo, don't assert the template default. Usually all that survives: env-var naming and any file-naming scheme a linter can't see. No surviving rows → no section. -->
 
 | Thing                 | Convention                  | Example           |
 | --------------------- | --------------------------- | ----------------- |
@@ -116,7 +123,7 @@ pnpm add [pkg] -w                       # Root dep (shared tooling only — rare
 
 ### TypeScript
 
-<!-- Generation: drop any line tsconfig/ESLint already enforces in this repo (check them) — keep only unenforced decisions. Verify claims against the actual base tsconfig: don't write "strict, no exceptions" if the config disables noImplicitAny. -->
+<!-- Generation: OMIT this list by default — it restates common strict-TS practice any model already follows. Keep only unenforced, repo-verified decisions (check the base tsconfig + ESLint: don't write "strict, no exceptions" if the config disables noImplicitAny; don't write "no any" if ESLint already bans it — name the tool in §8 instead). No surviving lines → no section. -->
 
 - Strict mode always on — `"strict": true` in every `tsconfig.json`
 - No `any` — use `unknown` and narrow with type guards
@@ -127,6 +134,8 @@ pnpm add [pkg] -w                       # Root dep (shared tooling only — rare
 
 ### Imports
 
+<!-- Generation: import order and aliases are usually ESLint-enforced — if so, name the tool in §8 and OMIT those lines. Keep only unenforced repo decisions verified by sampling (e.g. the barrel-file policy, the cross-workspace rule if no lint rule guards it). -->
+
 - Never use relative imports across workspace boundaries — use package names (`@repo/[pkg]`)
 - Internal alias: `@/` → `src/` within each workspace
 - Import order: external → `@repo/*` → `@/*` → `./`
@@ -134,14 +143,18 @@ pnpm add [pkg] -w                       # Root dep (shared tooling only — rare
 
 ### Comments & documentation
 
+<!-- Generation: template-imposed POLICY, not a repo fact. Include only if adopted in the plan doc's "Template policies to adopt" — or if the repo demonstrably already works this way (cite the evidence). -->
+
 The test for any comment or doc: **what forces it to update when it goes stale?** If the answer is "someone remembers", don't write it.
 
 - **TSDoc every exported symbol** in `packages/` (and shared app modules): one-sentence summary; `@param` / `@returns` only where the name doesn't already say it; `@example` when usage is non-obvious; `@deprecated` with the replacement. It renders in IDE hover — the highest-value documentation — and it sits on the symbol, so editing the code puts it in front of you.
 - Inline comments state **WHY, never WHAT**: constraints, workarounds (link the issue), invariants the code can't express. A comment that restates the code or its types gets deleted.
-- **No notes-to-self**: no "TODO: revisit", no "remember to update X when Y", no narrative state ("we currently do this in three places"). Do it now, file a ticket, or add a `FLAGS.md` entry.
+- **No notes-to-self**: no "TODO: revisit", no "remember to update X when Y", no narrative state ("we currently do this in three places"). Do it now, file a ticket, or add a `COME-BACK-TO.md` entry.
 - No history comments ("was previously X") — that's git's job.
 
 ### Git
+
+<!-- Generation: verify each line against evidence (commitlint config, actual commit history, `.changeset/`, branch protection) and keep only what is real for this repo. Drop the changeset line if there is no `.changeset/`. -->
 
 - Conventional commits: `feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `perf:`
 - Branch naming: `[type]/[short-description]` — e.g., `feat/user-auth`
@@ -151,6 +164,8 @@ The test for any comment or doc: **what forces it to update when it goes stale?*
 ---
 
 ## 4) Package Design Invariants
+
+<!-- Generation: template-imposed POLICY — include only if adopted in the plan doc's "Template policies to adopt". Fresh repo: a good default to propose. Existing repo: if the code widely violates these, don't codify a lie — route it to Practice review instead. -->
 
 > These apply to everything in `packages/`. No exceptions.
 
@@ -200,11 +215,15 @@ Don't export what only one consumer uses. Keep single-consumer code in the app u
 
 ### Logging
 
+<!-- Generation: include only if a shared logger package actually exists (name the real one). No logger package → OMIT; if console.log is rampant, that's a Practice review item, not a rule to assert. -->
+
 - **MUST** use `@repo/[logger-package]` — never `console.log` in application code
 - **MUST** include structured metadata in every log call: `{ userId, requestId, ... }`
 - `console.*` is allowed only in: test files, local CLI scripts, one-off dev tooling
 
 ### Error handling
+
+<!-- Generation: template-imposed POLICY — include only if adopted via the plan doc, or if a lint rule already enforces it (then name the tool in §8 instead and OMIT the prose). -->
 
 - **MUST NOT** swallow errors silently — empty `catch` blocks are forbidden
 - **MUST** log errors with full context before rethrowing or converting to a response
@@ -219,9 +238,10 @@ Don't export what only one consumer uses. Keep single-consumer code in the app u
 
 ### Environment variables
 
+<!-- Generation: keep the validation line only if the repo actually validates env at startup (find the schema) or the policy was adopted via the plan doc. Keep the prefix row only if the repo really uses prefixes. Universal hygiene ("don't commit .env") is inferable — OMIT it. -->
+
 - **MUST** be validated at startup with a Zod schema — fail fast on misconfiguration
 - **MUST** be documented in `.env.example` — keep it in sync with all required vars
-- **MUST NOT** commit `.env` or any secrets to git
 - Naming: `[APP]_[VAR]` prefix for app-scoped vars (e.g., `SERVER_PORT`, `WEB_API_URL`)
 
 ### Data access
@@ -255,6 +275,8 @@ Don't export what only one consumer uses. Keep single-consumer code in the app u
 ---
 
 ## 7) Testing
+
+<!-- Generation: the runner/location/E2E lines are FACTS — verify and keep them. The mocking/reset/network lines are template-imposed POLICY — include only if adopted via the plan doc or evidenced in the existing test setup. -->
 
 - **Unit / integration:** `[Vitest | Jest]`, co-located as `[subject].[test|spec].ts` next to source — match the repo's real runner and suffix
 - **E2E:** [Playwright / Cypress] at `[location]`
@@ -298,7 +320,7 @@ Spec (`YYYY-MM-DD-[topic]-design.md`) = problem & why now, approach & key decisi
 
 ### Reference docs
 
-- **Docs map:** [`docs/docs-map.md`](docs/docs-map.md) — the audited inventory of this repo's documentation: the canonical source per topic, known-stale docs, and open conflicts. Check it before trusting any doc it doesn't mark canonical. ← remove if no docs map exists yet
+- **Docs map:** [`docs/docs-map.md`](docs/docs-map.md) — the audited verdicts on this repo's documentation: the preferred source per topic, known-stale docs, and open conflicts. Check it before trusting any doc it doesn't mark as a preferred source. ← remove if no docs map exists yet
 - When working in an area that has a reference doc (e.g., `docs/architecture.md`, `docs/api.md`), read it before making changes that touch that area. If the doc is out of date after your change, update it in the same PR.
 
 ---
