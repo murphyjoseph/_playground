@@ -260,30 +260,27 @@ src/[domain]/
 
 ## 11) PR Checklist
 
-<!-- Generation: keep only checks tied to rules that actually made it into this guide or root — drop any checklist line whose rule was omitted (e.g. the logger line if no logger package exists). -->
+<!-- Generation: keep only checks tied to rules that actually made it into this guide or root — drop any checklist line whose rule was omitted (e.g. the logger line if no logger package exists) or routed to lint in the master spec's Prose exclusion list; "lint passes" is the check for those. -->
 
 - [ ] [Most important app-specific check]
 - [ ] [Second most important check]
 - [ ] Tests added / updated
-- [ ] No `console.log` in application code (use the logger)
-- [ ] No cross-app imports
+- [ ] `[lint command]` passes — covers every lint-routed convention
 - [ ] Changes scoped to `apps/[folder]/`
 
 ---
 
 ## 12) Enforcement Checks
 
+<!-- Generation: only invariants lint cannot express (generated files in sync, every env var documented in
+     .env.example, a registration list matching the files on disk). Anything in the master spec's Prose exclusion
+     list — console.log, cross-app imports, deep imports — is checked by the lint command, not by an rg snippet here;
+     a shell re-implementation of a lint rule is a finding. No surviving checks → no section. -->
+
 ```bash
 # [What this verifies — describe the invariant being checked]
 rg "[pattern]" apps/[folder]/src || echo "OK: [what passing means]"
 
-# console.log in application code (should be empty)
-rg "console\.(log|info|warn|error)" apps/[folder]/src || echo "OK: No console.log"
-
-# Cross-app imports (should be empty) — [OTHER_APPS] = sibling app folder names joined with |, e.g. "server|admin"
-# (a relative import of a sibling app looks like '../../[other-app]/…' and never contains the string "apps/")
-rg "from ['\"](\.\./)+([OTHER_APPS])/" apps/[folder]/src || echo "OK: No cross-app imports"
-
-# [App-specific check — e.g., missing required decorators, env vars not in .env.example]
+# [App-specific check — e.g., env vars read in code but missing from .env.example]
 [command] || echo "[message]"
 ```

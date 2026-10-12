@@ -10,7 +10,7 @@
   (`supported | experimental | deprecated | frozen`) after the intro, no public-API table, no
   commands, no PR checklist — those are inherited from the enclosing package/app guide.
   Model the tone on 1-2 existing subtree contracts in this repo if any exist (find them:
-  AGENTS.md or CLAUDE.md files below workspace src/ dirs) — do not assume specific paths.
+  AGENTS.md files below workspace src/ dirs) — do not assume specific paths.
 
   Title is the AREA name (e.g. "Event Handlers", "Workflows") — never a filename like "AGENTS.md — …".
 -->

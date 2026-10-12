@@ -1,33 +1,35 @@
 ---
 name: audit-agent-instructions
 description: >-
-  Read-only health audit of CLAUDE.md / AGENTS.md files across every git repo under ~/Sites (or a single
-  repo passed as an argument). Finds drift (commands that no longer match package.json), stale path
-  references, missing or malformed Change posture lines, broken or reversed AGENTS.md↔CLAUDE.md symlinks,
-  over-length or generic content, and workspaces with no coverage — then writes one report per repo to
+  Read-only health audit of AGENTS.md files across every git repo under ~/Sites (or a single repo passed
+  as an argument). Finds drift (commands that no longer match package.json), stale path references,
+  missing or malformed Change posture lines, stray CLAUDE.md files (Claude Code reads AGENTS.md natively;
+  a CLAUDE.md in the repo or an ancestor directory suppresses it), lint-enforceable prose, over-length or
+  generic content, and workspaces with no coverage — then writes one report per repo to
   ~/Sites/reviews/agents-md/. Use whenever the user asks to audit, check, sweep, or find discrepancies in
-  CLAUDE.md, AGENTS.md, or agent instruction files, asks "are my agent docs stale", or on a scheduled
-  (e.g. monthly) sweep. Never edits or generates instruction files — fixes belong to
-  /init-agent-instructions run in the affected repo.
+  AGENTS.md or agent instruction files, asks "are my agent docs stale", or on a scheduled (e.g. monthly)
+  sweep. Never edits or generates instruction files — fixes belong to /init-agent-instructions run in the
+  affected repo.
 argument-hint: "[repo-path] — optional; omit to sweep all of ~/Sites"
 allowed-tools: Read, Grep, Glob, Bash, Write, Task
 ---
 
 # Audit Agent Instructions
 
-Audit the health of `CLAUDE.md` / `AGENTS.md` files and report findings. This skill is the read-only
-companion to `/init-agent-instructions`: that skill scaffolds and fixes; this one only observes, so it is
-safe to run unattended on a schedule. **Never create, edit, or delete any file inside a target repo.**
-The only writes are reports under `~/Sites/reviews/agents-md/`.
+Audit the health of `AGENTS.md` files and report findings. This skill is the read-only companion to
+`/init-agent-instructions`: that skill scaffolds and fixes; this one only observes, so it is safe to run
+unattended on a schedule. **Never create, edit, or delete any file inside a target repo.** The only writes
+are reports under `~/Sites/reviews/agents-md/`.
 
 ## 1 — Load the rubric
 
 The audit criteria live in the sibling skill's rubric:
-`../init-agent-instructions/references/claudemd-best-practices.md`, resolved relative to **this skill's
+`../init-agent-instructions/references/agentsmd-best-practices.md`, resolved relative to **this skill's
 directory** (both skills are installed side by side, so the sibling path resolves; if it doesn't, try
-`~/.claude/skills/init-agent-instructions/references/claudemd-best-practices.md`). Read it in full — it
-defines what counts as a finding. If it cannot be found, stop and say so; auditing from memory would
-produce findings the fix-it skill doesn't recognize.
+`~/.claude/skills/init-agent-instructions/references/agentsmd-best-practices.md`). Read it in full — it
+defines what counts as a finding. Also read `../init-agent-instructions/references/lint-catalog.md` — the
+lint-enforceable-prose check below depends on it. If either cannot be found, stop and say so; auditing from
+memory would produce findings the fix-it skill doesn't recognize.
 
 ## 2 — Enumerate targets
 
@@ -35,9 +37,10 @@ produce findings the fix-it skill doesn't recognize.
 - **Without:** every directory directly under `~/Sites` that contains a `.git`. Never descend into
   `node_modules`, build output, or `.git` itself.
 
-For each repo, glob for `CLAUDE.md` / `AGENTS.md` anywhere inside (excluding `node_modules`). A repo with
-neither file gets no audit — record it as **no coverage** in the summary instead. That absence is a
-signal, not an error.
+For each repo, glob for `AGENTS.md` and every `CLAUDE.md`-family file (`CLAUDE.md`, `.claude/CLAUDE.md`,
+`CLAUDE.local.md`) anywhere inside (excluding `node_modules` and `.claude/worktrees/`). A repo with none of
+them gets no audit — record it as **no coverage** in the summary instead. That absence is a signal, not an
+error.
 
 ## 3 — Audit each repo (fan out)
 
@@ -50,10 +53,15 @@ file dumps. For a single-repo run, do the checks directly.
 Per repo, in rough order of cheapness:
 
 **Mechanical checks — run them, don't eyeball:**
-- **Twin state.** For every instruction-file location: the healthy state is `AGENTS.md` as the real file
-  and `CLAUDE.md` a symlink to it (`ls -la` / `readlink`). Findings: missing twin, broken symlink,
-  reversed arrangement (real `CLAUDE.md`, symlinked `AGENTS.md`), or two real files — if two real files,
-  also `diff` them; drift between them is a separate, higher-severity finding.
+- **Stray `CLAUDE.md`.** The healthy state is `AGENTS.md` alone — Claude Code reads it natively, and any
+  `CLAUDE.md`-family file in the repo or an ancestor directory suppresses every `AGENTS.md` below it under
+  the default setting. Findings: a `CLAUDE.md` or `.claude/CLAUDE.md` inside the repo (**high** if its
+  content differs from the sibling `AGENTS.md` — `diff` them; **medium** if it is a symlink, byte-identical,
+  or an `@AGENTS.md` import stub); a `CLAUDE.local.md` (**low** — personal file, note the settings fix); a
+  `CLAUDE.md`-family file in a directory above the repo root (**medium**, machine-local — report the
+  user-level fix: `~/.claude/settings.json` → `pluginConfigs` → `cc-plugin-agents-md@builtin` →
+  `instructionFiles: "claude-md-and-agents-md"`). A leftover `## Merged from CLAUDE.md` heading in a
+  committed `AGENTS.md` is **medium** (an unfinished `/init-agent-instructions` run).
 - **Change posture line.** Every workspace-level file must open with the exact phrase
   `Change posture:` followed by one of `locked | guarded | standard | open` plus parenthesized inputs.
   Grep for it; missing line or off-format value is a finding. Domain/subtree files (below a workspace's
@@ -67,6 +75,11 @@ Per repo, in rough order of cheapness:
   say which it is).
 
 **Judgment checks — apply the rubric:**
+- Lint-enforceable prose (a convention line the lint catalog or an installed ESLint plugin can carry —
+  "no `any`", "no `console.log`", import order, naming tables, "use `import type`" — written as a rule
+  instead of living in the lint config; **medium** when the rule is already configured or the plugin is
+  installed, **low** when a plugin is still needed; a line carrying the marker
+  `(interim — lint rule pending: <id>)` is exempt).
 - Generic content (true of any TS/Node project → belongs in user-global config, not the repo).
 - Delta violations (child file restating a rule already in root).
 - Vague or aspirational rules with nothing enforcing them.
@@ -98,8 +111,9 @@ Verdict: <N findings (worst: <severity>) | clean | no coverage>
 ```
 
 A clean repo's report is the header plus "Verdict: clean" — nothing else. Severity: **high** = actively
-misleads an agent (drifted twins, wrong commands, contradictions); **medium** = missing contract
-(posture line, coverage gap, broken symlink); **low** = hygiene (length, generic content).
+misleads an agent (a `CLAUDE.md` whose content differs from `AGENTS.md`, wrong commands, contradictions);
+**medium** = missing contract (posture line, coverage gap, stray `CLAUDE.md`, lint-enforceable prose with the
+tool already present); **low** = hygiene (length, generic content, `CLAUDE.local.md`).
 
 ## 5 — Summarize in chat
 

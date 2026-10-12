@@ -225,7 +225,7 @@ import { [ExportA] } from '@repo/[package-name]'
 
 ## 10) PR Checklist
 
-<!-- Generation: keep only checks tied to rules that actually made it into this guide or root — drop lines whose rule was omitted (e.g. TSDoc if that policy wasn't adopted; changesets if not published). -->
+<!-- Generation: keep only checks tied to rules that actually made it into this guide or root — drop lines whose rule was omitted (e.g. TSDoc if that policy wasn't adopted; changesets if not published) or routed to lint in the master spec's Prose exclusion list; "lint passes" is the check for those. -->
 
 - [ ] All new exports go through `src/index.ts`
 - [ ] Types exported alongside values
@@ -241,19 +241,12 @@ import { [ExportA] } from '@repo/[package-name]'
 
 ## 11) Enforcement Checks
 
+<!-- Generation: only invariants lint cannot express. Forbidden-dep imports, upward imports from apps/, and deep
+     imports by consumers are lint rules (import/no-restricted-paths, import/no-nodejs-modules, no-restricted-imports
+     — see the master spec's Prose exclusion list and _ins/3-automation.md); when routed to lint, they are checked by
+     the lint command, not by an rg snippet here. Keep them below ONLY while routed `prose-interim`. -->
+
 ```bash
-# Forbidden dep imports — fill in the pattern based on this package's declared forbidden deps
-# e.g., for a universal utility: "react|vue|@angular|@nestjs|express|fastify"
-# e.g., for a browser-only package: "node:fs|node:path|node:crypto"
-rg "from ['\"][FORBIDDEN_PATTERN]['\"]" packages/[folder]/src \
-  || echo "OK: No forbidden imports"
-
-# Imports from apps/ (always forbidden in packages)
-rg "from ['\"].*apps/" packages/[folder]/src || echo "OK: No upward imports"
-
-# Deep imports by consumers (should go through the barrel)
-rg "from ['\"]@repo/[package-name]/src/" || echo "OK: No deep imports by consumers"
-
 # dist/ not tracked in git
 git ls-files packages/[folder]/dist | wc -l | xargs -I{} test {} -eq 0 \
   && echo "OK: dist/ not tracked" || echo "WARN: dist/ files are tracked"

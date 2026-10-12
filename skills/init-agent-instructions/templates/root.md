@@ -22,7 +22,7 @@ Change posture: `[locked | guarded | standard | open]` ([inputs — why this def
 
 - Read the code before changing it; cite `file:line`. Never assume — verify in the actual files.
 - Match your latitude to the workspace's **change posture** (legend below): smallest sufficient diff in `guarded` code; opportunistic improvements only in `open` code.
-- Hit a contradiction — between a workspace guide (`AGENTS.md`) and the code, between two guides, or an ambiguity you'd otherwise paper over with a guess? Record it in `COME-BACK-TO.md` at the repo root, surface it in your reply, and proceed on the safer reading. Never silently assume.
+- Hit a contradiction — between a workspace guide (`AGENTS.md`) and the code, between two guides, or an ambiguity you'd otherwise paper over with a guess? Surface it in your reply and in the PR description, and proceed on the safer reading. Never silently assume.
 - If your change makes a statement in any workspace guide (`AGENTS.md`) false, update that file in the same PR. A doc that lies is worse than no doc.
 
 ## Metadata Legend
@@ -62,7 +62,7 @@ When one diff spans workspaces with different postures, the most restrictive pos
 │   └── [topic].md        # Architecture, API, deployment, etc.
 ├── [orchestrator config]   # nx.json / turbo.json / … — omit if none
 ├── pnpm-workspace.yaml
-└── AGENTS.md             ← you are here (CLAUDE.md → symlink to it)
+└── AGENTS.md             ← you are here
 ```
 
 **Workspace reference:**
@@ -149,7 +149,7 @@ The test for any comment or doc: **what forces it to update when it goes stale?*
 
 - **TSDoc every exported symbol** in `packages/` (and shared app modules): one-sentence summary; `@param` / `@returns` only where the name doesn't already say it; `@example` when usage is non-obvious; `@deprecated` with the replacement. It renders in IDE hover — the highest-value documentation — and it sits on the symbol, so editing the code puts it in front of you.
 - Inline comments state **WHY, never WHAT**: constraints, workarounds (link the issue), invariants the code can't express. A comment that restates the code or its types gets deleted.
-- **No notes-to-self**: no "TODO: revisit", no "remember to update X when Y", no narrative state ("we currently do this in three places"). Do it now, file a ticket, or add a `COME-BACK-TO.md` entry.
+- **No notes-to-self**: no "TODO: revisit", no "remember to update X when Y", no narrative state ("we currently do this in three places"). Do it now or file a ticket.
 - No history comments ("was previously X") — that's git's job.
 
 ### Git
@@ -290,6 +290,12 @@ Don't export what only one consumer uses. Keep single-consumer code in the app u
 
 - **Pipeline:** [GitHub Actions] — `.github/workflows/`
 - **Required checks before merge:** `build` · `test` · `lint` · `check-types`
+
+<!-- Generation: the ONLY trace of lint-bound conventions in any guide. Include when the master spec's Prose
+     exclusion list is non-empty and a lint config exists; omit when no config exists yet (the proposal lives in
+     the PR's _ins/3-automation.md, not in the guide). -->
+
+- **Lint-enforced conventions:** `[eslint config path]` — not restated in this guide; run `[lint command]`
 - **Deploy:** [describe per-app deploy — e.g., Vercel auto-deploys `apps/web` on merge to `main`]
 - **Secrets:** managed in [GitHub Actions secrets] — never in source
 
@@ -329,6 +335,6 @@ Spec (`YYYY-MM-DD-[topic]-design.md`) = problem & why now, approach & key decisi
 
 1. Scaffold `apps/[name]/` or `packages/[name]/`: `package.json` (correct `name`, standard `dev`/`build`/`test`/`lint`/`check-types` scripts), `tsconfig.json`, `src/`
 2. Confirm the workspace manifest glob picks it up; register with the orchestrator if one is used
-3. Create its guide from the matching delta template — every workspace carries one (it's the posture/metadata carrier): write `AGENTS.md`, then `ln -s AGENTS.md CLAUDE.md` beside it
+3. Create its guide from the matching delta template — every workspace carries one (it's the posture/metadata carrier): write `AGENTS.md` (no `CLAUDE.md` — Claude Code reads `AGENTS.md` directly)
 4. Add it to the workspace reference in Monorepo Structure
 5. Packages only: verify the dep footprint against the Package Design Invariants **before** adding any dependency
